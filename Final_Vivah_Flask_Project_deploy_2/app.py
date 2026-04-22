@@ -1066,10 +1066,8 @@ def init_db():
             ]
             db.session.bulk_save_objects(sample_coupons); db.session.commit()
 
+# Initialize DB when gunicorn imports this module
+init_db()
+
 if __name__ == '__main__':
-    init_db()
-    print("\n" + "="*55)
-    print("  VIVAH SAREES — http://127.0.0.1:5000")
-    print(f"  Admin: /admin/login  |  {ADMIN_USERNAME} / {ADMIN_PASSWORD}")
-    print("="*55 + "\n")
-    app.run(host="0.0.0.0",port=int(os.environ.get("PORT",10000)))
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 10000)))
