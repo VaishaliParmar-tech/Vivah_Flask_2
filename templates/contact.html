@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block extra_head %}<style>@media(max-width:700px){.checkout-layout,.shop-layout,[style*="grid-template-columns:1fr 1fr"]{grid-template-columns:1fr!important}}</style>{% endblock %}
+{% block title %}Contact Us – Vivah{% endblock %}
+{% block content %}
+<div style="background:linear-gradient(135deg,var(--crimson),var(--charcoal));padding:70px 40px;text-align:center;color:white;">
+  <div class="section-label" style="color:var(--gold-light);">Get in Touch</div>
+  <h1 style="font-family:var(--font-heading);font-size:clamp(30px,5vw,56px);letter-spacing:4px;">Contact Vivah</h1>
+</div>
+<section class="section">
+  <div class="container">
+    <div style="display:grid;grid-template-columns:1fr 1.5fr;gap:60px;align-items:start;">
+      <div>
+        <h2 style="font-family:var(--font-heading);font-size:30px;color:var(--crimson);letter-spacing:2px;margin-bottom:30px;">Visit Our Store</h2>
+        {% for item in [('fas fa-map-marker-alt','Address','Vivah Sarees, Ring Road, Ahmedabad, Gujarat 380001'),('fas fa-phone','Phone','+91 98765 43210'),('fas fa-envelope','Email','hello@vivahsarees.com'),('fas fa-clock','Hours','Mon–Sat: 10am – 8pm')] %}
+        <div style="display:flex;gap:16px;margin-bottom:28px;align-items:flex-start;">
+          <div style="width:42px;height:42px;background:var(--crimson);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="{{ item[0] }}" style="color:white;font-size:16px;"></i></div>
+          <div><div style="font-family:var(--font-sans);font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--gold-dark);margin-bottom:4px;">{{ item[1] }}</div><div style="font-size:15px;color:var(--charcoal-light);">{{ item[2] }}</div></div>
+        </div>
+        {% endfor %}
+        <div style="display:flex;gap:14px;margin-top:30px;">
+          {% for icon,link in [('fab fa-instagram','#'),('fab fa-facebook-f','#'),('fab fa-whatsapp','#'),('fab fa-pinterest-p','#')] %}
+          <a href="{{ link }}" style="width:42px;height:42px;background:var(--ivory-dark);display:flex;align-items:center;justify-content:center;color:var(--crimson);font-size:16px;transition:var(--transition);" onmouseover="this.style.background='var(--crimson)';this.style.color='white'" onmouseout="this.style.background='var(--ivory-dark)';this.style.color='var(--crimson)'"><i class="{{ icon }}"></i></a>
+          {% endfor %}
+        </div>
+      </div>
+      <div style="background:white;padding:40px;box-shadow:var(--shadow);">
+        <h2 style="font-family:var(--font-heading);font-size:26px;color:var(--crimson);letter-spacing:2px;margin-bottom:28px;">Send us a Message</h2>
+        <form method="POST" action="{{ url_for('contact') }}">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+            <div class="form-group"><label>Your Name *</label><input type="text" name="name" required placeholder="Full name" /></div>
+            <div class="form-group"><label>Phone</label><input type="tel" name="phone" placeholder="+91 XXXXX XXXXX" /></div>
+          </div>
+          <div class="form-group" style="margin-bottom:16px;"><label>Email *</label><input type="email" name="email" required placeholder="your@email.com" /></div>
+          <div class="form-group" style="margin-bottom:24px;"><label>Message *</label><textarea name="message" required rows="5" placeholder="How can we help you?"></textarea></div>
+          <button type="submit" class="btn btn-crimson" style="width:100%;justify-content:center;"><i class="fas fa-paper-plane"></i> Send Message</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

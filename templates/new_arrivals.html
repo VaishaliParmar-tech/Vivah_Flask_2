@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block extra_head %}<style>@media(max-width:700px){.checkout-layout,.shop-layout,[style*="grid-template-columns:1fr 1fr"]{grid-template-columns:1fr!important}}</style>{% endblock %}
+{% block title %}New Arrivals – Vivah{% endblock %}
+{% block content %}
+<div style="background:var(--ivory-dark); padding:50px 40px; text-align:center; border-bottom:1px solid rgba(201,168,76,0.2);">
+  <div class="section-label">Fresh Collection</div>
+  <h1 style="font-family:var(--font-heading); font-size:clamp(28px,5vw,52px); color:var(--crimson); letter-spacing:3px;">New Arrivals</h1>
+  <div class="section-divider"></div>
+  <p style="font-style:italic; color:var(--warm-gray);">The latest additions to our curated collection — 2026</p>
+</div>
+<section class="section">
+  <div class="container">
+    {% if products %}
+    <div class="products-grid">
+      {% for product in products %}
+      <div class="product-card">
+        <div class="product-img-wrap">
+          {% if product.image %}<img src="{{ url_for('static', filename='images/products/' + product.image) }}" alt="{{ product.name }}" />
+          {% else %}<div class="product-img-placeholder"><i class="fas fa-star" style="color:var(--gold);"></i><span>New Arrival</span></div>{% endif %}
+          <div class="product-badges"><span class="badge badge-new">New</span></div>
+          <div class="product-actions-hover">
+            <button onclick="addToCart({{ product.id }})">Add to Bag</button>
+            <button onclick="window.location='/product/{{ product.id }}'">View</button>
+          </div>
+        </div>
+        <div class="product-info">
+          <div class="category-tag">{{ product.category.name if product.category else 'New' }}</div>
+          <h3>{{ product.name }}</h3>
+          <div class="product-price"><span class="price-current">₹{{ "{:,.0f}".format(product.price) }}</span></div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div style="text-align:center; padding:80px 20px;">
+      <div class="products-grid">
+        {% for i in range(8) %}
+        <div class="product-card">
+          <div class="product-img-wrap"><div class="product-img-placeholder"><i class="fas fa-star" style="color:var(--gold);"></i><span>New Arrival {{ i+1 }}</span></div><div class="product-badges"><span class="badge badge-new">New</span></div></div>
+          <div class="product-info"><div class="category-tag">New Collection</div><h3>Saree {{ i+1 }}</h3><div class="product-price"><span class="price-current">₹X,XXX</span></div></div>
+        </div>
+        {% endfor %}
+      </div>
+      <p style="margin-top:30px; font-family:var(--font-sans); font-size:13px; color:var(--warm-gray);">Add new arrivals via <a href="{{ url_for('admin') }}" style="color:var(--crimson);">Admin Panel</a></p>
+    </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

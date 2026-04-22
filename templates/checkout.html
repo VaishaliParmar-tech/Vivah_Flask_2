@@ -1,0 +1,158 @@
+{% extends "base.html" %}
+{% block title %}Checkout – Vivah{% endblock %}
+{% block extra_head %}
+<style>
+.checkout-layout{display:grid;grid-template-columns:1fr 380px;gap:36px;max-width:1200px;margin:0 auto;padding:50px 40px}
+.checkout-panel{background:white;padding:36px;box-shadow:var(--shadow)}
+.checkout-panel h2{font-family:var(--font-heading);font-size:22px;color:var(--crimson);letter-spacing:2px;margin-bottom:24px;padding-bottom:14px;border-bottom:2px solid var(--ivory-dark)}
+.payment-option{display:flex;align-items:center;gap:14px;padding:16px;border:2px solid var(--ivory-dark);margin-bottom:12px;cursor:pointer;transition:var(--transition)}
+.payment-option:hover{border-color:var(--gold);background:var(--ivory)}
+.payment-option input[type=radio]{accent-color:var(--crimson);width:18px;height:18px}
+.payment-option.selected{border-color:var(--crimson);background:rgba(139,26,26,0.03)}
+.payment-details{display:none;margin-top:16px;padding:20px;background:var(--ivory);border:1.5px solid rgba(201,168,76,0.3)}
+.payment-details.active{display:block}
+.card-input{width:100%;padding:11px 13px;border:1.5px solid rgba(201,168,76,0.3);background:white;font-family:var(--font-body);font-size:14px;outline:none;margin-bottom:12px;box-sizing:border-box}
+.card-input:focus{border-color:var(--crimson)}
+.qr-box{text-align:center;padding:20px 0}
+@media(max-width:900px){.checkout-layout{grid-template-columns:1fr;padding:24px 16px}}
+@media(max-width:600px){.checkout-layout{padding:16px 12px}.checkout-panel{padding:20px 16px}.checkout-panel h2{font-size:18px}}
+</style>
+{% endblock %}
+{% block content %}
+<div style="background:var(--ivory-dark);padding:36px 40px;border-bottom:1px solid rgba(201,168,76,0.2);">
+  <div class="container" style="max-width:1200px;">
+    <div class="section-label">Final Step</div>
+    <h1 style="font-family:var(--font-heading);font-size:36px;color:var(--crimson);letter-spacing:3px;">Checkout</h1>
+  </div>
+</div>
+
+<form method="POST" action="{{ url_for('checkout') }}">
+<div class="checkout-layout">
+  <div>
+    <!-- Address -->
+    <div class="checkout-panel" style="margin-bottom:24px;">
+      <h2><i class="fas fa-map-marker-alt" style="color:var(--gold);margin-right:10px;"></i>Delivery Address</h2>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+        <div class="form-group" style="grid-column:1/-1;">
+          <label>Full Address *</label>
+          <textarea name="address" required rows="2" placeholder="House/Flat No., Street, Area"></textarea>
+        </div>
+        <div class="form-group">
+          <label>City *</label>
+          <input type="text" name="city" required placeholder="e.g. Ahmedabad" value="Ahmedabad" />
+        </div>
+        <div class="form-group">
+          <label>State *</label>
+          <input type="text" name="state" required placeholder="e.g. Gujarat" value="Gujarat" />
+        </div>
+        <div class="form-group">
+          <label>PIN Code *</label>
+          <input type="text" name="pincode" required placeholder="380001" maxlength="6" />
+        </div>
+        <div class="form-group">
+          <label>Phone *</label>
+          <input type="tel" name="phone" required placeholder="+91 XXXXX XXXXX" value="{{ user.phone or '' }}" />
+        </div>
+      </div>
+    </div>
+    <!-- Payment -->
+    <div class="checkout-panel">
+      <h2><i class="fas fa-credit-card" style="color:var(--gold);margin-right:10px;"></i>Payment Method</h2>
+
+      <label class="payment-option selected" onclick="selectPayment('COD',this)">
+        <input type="radio" name="payment_method" value="COD" checked />
+        <div>
+          <div style="font-family:var(--font-sans);font-size:13px;font-weight:700;letter-spacing:1px;">Cash on Delivery</div>
+          <div style="font-size:13px;color:var(--warm-gray);">Pay when your saree arrives</div>
+        </div>
+        <i class="fas fa-money-bill-wave" style="color:var(--gold);margin-left:auto;font-size:22px;"></i>
+      </label>
+
+      <label class="payment-option" onclick="selectPayment('Stripe',this)">
+        <input type="radio" name="payment_method" value="Stripe" />
+        <div>
+          <div style="font-family:var(--font-sans);font-size:13px;font-weight:700;letter-spacing:1px;">Pay Online (Stripe)</div>
+          <div style="font-size:13px;color:var(--warm-gray);">Credit/Debit Card, UPI, Wallets</div>
+        </div>
+        <i class="fab fa-stripe" style="color:#635bff;margin-left:auto;font-size:28px;"></i>
+      </label>
+
+      <!-- Stripe Info Panel -->
+      <div class="payment-details" id="stripe-details">
+        <div style="text-align:center;padding:16px 0;">
+          <i class="fas fa-lock" style="font-size:28px;color:var(--gold);margin-bottom:12px;"></i>
+          <div style="font-family:var(--font-sans);font-size:14px;font-weight:600;color:var(--charcoal);margin-bottom:8px;">Secure Payment via Stripe</div>
+          <div style="font-size:13px;color:var(--warm-gray);line-height:1.6;">
+            You will be redirected to Stripe's secure checkout page to complete your payment.<br>
+            All major cards, UPI, and wallets accepted.
+          </div>
+          <div style="display:flex;gap:10px;justify-content:center;margin-top:16px;opacity:0.7;">
+            <i class="fab fa-cc-visa" style="font-size:30px;color:#1a1f71"></i>
+            <i class="fab fa-cc-mastercard" style="font-size:30px;color:#eb001b"></i>
+            <i class="fab fa-cc-amex" style="font-size:30px;color:#007bc1"></i>
+            <i class="fab fa-google-pay" style="font-size:30px;color:#4285f4"></i>
+            <i class="fab fa-apple-pay" style="font-size:30px;color:#000"></i>
+          </div>
+          <div style="margin-top:14px;font-size:11px;color:var(--warm-gray);"><i class="fas fa-shield-alt" style="color:var(--gold);margin-right:4px;"></i>256-bit SSL encrypted &amp; PCI compliant</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Order Summary -->
+  <div class="checkout-panel" style="height:fit-content;position:sticky;top:90px;">
+    <h2>Order Summary</h2>
+    {% for item in cart_products %}
+    <div style="display:flex;gap:14px;margin-bottom:16px;align-items:center;">
+      <div style="width:56px;height:72px;background:var(--ivory-dark);flex-shrink:0;overflow:hidden;">
+        {% if item.product.image %}
+          <img src="{{ url_for('static', filename='images/products/' + item.product.image) }}" style="width:100%;height:100%;object-fit:cover;" />
+        {% else %}
+          <div style="height:100%;display:flex;align-items:center;justify-content:center;font-size:22px;">🥻</div>
+        {% endif %}
+      </div>
+      <div style="flex:1;">
+        <div style="font-size:14px;font-weight:600;color:var(--charcoal);">{{ item.product.name }}</div>
+        <div style="font-family:var(--font-sans);font-size:12px;color:var(--warm-gray);">Qty: {{ item.qty }}{% if item.color %} | Color: {{ item.color }}{% endif %}</div>
+      </div>
+      <div style="font-size:15px;color:var(--crimson);font-weight:600;">₹{{ "{:,.0f}".format(item.product.price * item.qty) }}</div>
+    </div>
+    {% endfor %}
+    <hr style="border:none;border-top:1px solid var(--ivory-dark);margin:16px 0;"/>
+    <div style="display:flex;justify-content:space-between;font-size:14px;margin-bottom:8px;"><span>Subtotal</span><span>₹{{ "{:,.0f}".format(subtotal) }}</span></div>
+    {% if discount > 0 %}
+    <div style="display:flex;justify-content:space-between;font-size:14px;margin-bottom:8px;color:#2E7D32;"><span>Discount <small>({{ coupon.label if coupon else '' }})</small></span><span>– ₹{{ "{:,.0f}".format(discount) }}</span></div>
+    {% endif %}
+    <div style="display:flex;justify-content:space-between;font-size:14px;margin-bottom:8px;color:green;"><span>Shipping</span><span>{{ 'Free' if total >= 2999 else '₹199' }}</span></div>
+    <hr style="border:none;border-top:2px solid var(--ivory-dark);margin:12px 0;"/>
+    <div style="display:flex;justify-content:space-between;font-size:22px;font-weight:600;color:var(--crimson);margin-bottom:24px;"><span>Total</span><span>₹{{ "{:,.0f}".format(total + (0 if total >= 2999 else 199)) }}</span></div>
+    <button type="submit" id="place-order-btn" class="btn btn-crimson" style="width:100%;justify-content:center;font-size:12px;padding:16px;">
+      <i class="fas fa-lock"></i> <span id="btn-text">Place Order Securely</span>
+    </button>
+    <p style="text-align:center;font-family:var(--font-sans);font-size:11px;color:var(--warm-gray);margin-top:12px;"><i class="fas fa-shield-alt" style="color:var(--gold);margin-right:4px;"></i>100% Secure &amp; Trusted</p>
+  </div>
+</div>
+</form>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function selectPayment(method, clickedLabel) {
+  // Update radio
+  document.querySelectorAll('.payment-option').forEach(el => el.classList.remove('selected'));
+  clickedLabel.classList.add('selected');
+  clickedLabel.querySelector('input[type=radio]').checked = true;
+
+  // Show/hide detail panels
+  document.getElementById('stripe-details').classList.toggle('active', method === 'Stripe');
+
+  // Update button text
+  var btnText = document.getElementById('btn-text');
+  if (method === 'Stripe') {
+    btnText.textContent = 'Pay with Stripe';
+  } else {
+    btnText.textContent = 'Place Order Securely';
+  }
+}
+</script>
+{% endblock %}

@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block extra_head %}<style>@media(max-width:700px){.checkout-layout,.shop-layout,[style*="grid-template-columns:1fr 1fr"]{grid-template-columns:1fr!important}}</style>{% endblock %}
+{% block title %}About Vivah – Our Story{% endblock %}
+{% block content %}
+<section style="position:relative;min-height:450px;display:flex;align-items:center;overflow:hidden;">
+  <div style="position:absolute;inset:0;background:linear-gradient(135deg,var(--charcoal) 0%,var(--crimson) 50%,var(--charcoal) 100%);"></div>
+  <img src="{{ url_for('static', filename='images/hero/hero_banner4.jpg') }}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0.2;" alt="" />
+  <div style="position:relative;z-index:1;padding:80px 80px;color:white;max-width:700px;">
+    <div class="section-label" style="color:var(--gold-light);">Our Story</div>
+    <h1 style="font-family:var(--font-heading);font-size:clamp(36px,5vw,64px);letter-spacing:4px;margin-bottom:20px;">About <span style="color:var(--gold-light);">Vivah</span></h1>
+    <p style="font-size:18px;font-style:italic;line-height:1.8;opacity:0.9;">Born from a love of Indian heritage and craftsmanship, Vivah is more than a saree brand — it's a celebration of womanhood.</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container" style="display:grid;grid-template-columns:1fr 1fr;gap:70px;align-items:center;">
+    <div>
+      <div class="section-label" style="text-align:left;">Our Mission</div>
+      <h2 style="font-family:var(--font-heading);font-size:36px;color:var(--crimson);letter-spacing:2px;margin-bottom:24px;">Weaving Heritage Into Every Drape</h2>
+      <p style="font-size:16px;color:var(--warm-gray);line-height:1.9;margin-bottom:20px;">Vivah was founded with a single purpose — to make the finest Indian sarees accessible to every woman who cherishes her culture. We work directly with master weavers from Varanasi, Kanchipuram, and Surat to bring you authentic, handcrafted pieces.</p>
+      <p style="font-size:16px;color:var(--warm-gray);line-height:1.9;">Each saree in our collection tells a story — of skilled hands, of generational knowledge, of India's unparalleled textile tradition. When you wear Vivah, you carry a piece of this heritage.</p>
+    </div>
+    <div style="background:var(--ivory-dark);aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;overflow:hidden;">
+      <img src="{{ url_for('static', filename='images/hero/hero_banner5.jpg') }}" style="width:100%;height:100%;object-fit:cover;" alt="About Vivah" onerror="this.style.display='none'" />
+    </div>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="container">
+    <div class="section-header"><div class="section-label">Why Choose Us</div><h2 class="section-title">The Vivah Promise</h2><div class="section-divider"></div></div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:30px;">
+      {% for icon,title,desc in [('fas fa-gem','100% Authentic','Every saree is sourced directly from master weavers with certificates of authenticity.'),('fas fa-magic','Custom Creations','Design your dream saree with our unique customization tool — powered by AI.'),('fas fa-heart','Made with Love','Our craftsmen pour their heart into every thread — you can feel it when you drape.'),('fas fa-truck','Pan-India Delivery','We deliver across India with careful packaging to protect your precious sarees.'),('fas fa-undo','Easy Returns','7-day no-questions-asked returns because your satisfaction is our priority.'),('fas fa-headset','Expert Styling','Our saree stylists are available to help you find your perfect drape and pairing.')] %}
+      <div style="background:white;padding:36px 28px;box-shadow:0 2px 20px rgba(0,0,0,0.06);text-align:center;">
+        <i class="{{ icon }}" style="font-size:36px;color:var(--gold);margin-bottom:16px;display:block;"></i>
+        <h3 style="font-family:var(--font-heading);font-size:20px;color:var(--charcoal);letter-spacing:2px;margin-bottom:12px;">{{ title }}</h3>
+        <p style="font-size:14px;color:var(--warm-gray);line-height:1.8;">{{ desc }}</p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section style="background:var(--crimson);padding:70px 40px;text-align:center;color:white;">
+  <h2 style="font-family:var(--font-heading);font-size:40px;letter-spacing:4px;margin-bottom:16px;">Ready to Find Your Saree?</h2>
+  <p style="font-size:17px;font-style:italic;opacity:0.85;margin-bottom:32px;">Explore our 200+ beautiful sarees or design your own</p>
+  <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;">
+    <a href="{{ url_for('collections') }}" class="btn btn-gold">Explore Collections</a>
+    <a href="{{ url_for('customize') }}" class="btn btn-white">Customize a Saree</a>
+  </div>
+</section>
+{% endblock %}

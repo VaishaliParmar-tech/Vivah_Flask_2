@@ -1,0 +1,239 @@
+{% extends "base.html" %}
+{% block title %}My Profile – Vivah{% endblock %}
+{% block extra_head %}
+<style>
+.profile-hero{background:linear-gradient(135deg,var(--crimson),var(--charcoal));padding:50px 40px;color:white;text-align:center}
+.profile-hero h1{font-family:var(--font-heading);font-size:36px;letter-spacing:3px;color:var(--gold-light)}
+.profile-layout{display:grid;grid-template-columns:280px 1fr;gap:30px;max-width:1200px;margin:0 auto;padding:50px 40px}
+.profile-sidebar{display:flex;flex-direction:column;gap:8px}
+.profile-nav-btn{display:flex;align-items:center;gap:12px;padding:14px 18px;font-family:var(--font-sans);font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--charcoal);background:white;border:none;cursor:pointer;text-align:left;transition:var(--transition);box-shadow:0 2px 10px rgba(0,0,0,0.05);border-left:3px solid transparent;width:100%}
+.profile-nav-btn:hover,.profile-nav-btn.active{color:var(--crimson);border-left-color:var(--gold);background:var(--ivory)}
+.profile-nav-btn i{width:18px;color:var(--gold-dark)}
+.profile-section{display:none}
+.profile-section.active{display:block}
+.profile-card{background:white;padding:34px;box-shadow:0 2px 15px rgba(0,0,0,0.06);margin-bottom:24px}
+.profile-card h2{font-family:var(--font-heading);font-size:24px;color:var(--crimson);letter-spacing:2px;margin-bottom:24px;padding-bottom:14px;border-bottom:2px solid var(--ivory-dark)}
+.order-row{display:grid;grid-template-columns:1fr 1fr 1fr auto auto;gap:16px;align-items:center;padding:16px 0;border-bottom:1px solid var(--ivory-dark);font-size:14px}
+.order-row:last-child{border-bottom:none}
+.order-num{font-family:var(--font-sans);font-weight:700;color:var(--crimson);font-size:13px;letter-spacing:1px}
+.status-pill{display:inline-block;padding:4px 12px;font-family:var(--font-sans);font-size:10px;letter-spacing:2px;text-transform:uppercase;border-radius:2px}
+.status-Confirmed{background:#E8F5E9;color:#2E7D32}
+.status-Processing{background:#FFF3E0;color:#E65100}
+.status-Shipped{background:#E3F2FD;color:#1565C0}
+.status-Delivered{background:#F3E5F5;color:#6A1B9A}
+.status-Out.for.Delivery{background:#FFF8E1;color:#F57F17}
+@media(max-width:768px){.profile-layout{grid-template-columns:1fr;padding:30px 16px}.order-row{grid-template-columns:1fr 1fr;gap:8px}}
+</style>
+{% endblock %}
+{% block content %}
+<div class="profile-hero">
+  <div style="width:72px;height:72px;background:rgba(255,255,255,0.15);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:30px;border:2px solid var(--gold);">
+    <i class="fas fa-user"></i>
+  </div>
+  <h1>{{ user.name }}</h1>
+  <p style="font-size:14px;opacity:.75;margin-top:6px;">{{ user.email }} &nbsp;|&nbsp; Member since {{ user.created_at.strftime('%B %Y') }}</p>
+</div>
+
+<div class="profile-layout">
+  <div class="profile-sidebar">
+    <button class="profile-nav-btn active" onclick="showTab('overview',this)"><i class="fas fa-home"></i> Overview</button>
+    <button class="profile-nav-btn" onclick="showTab('orders',this)" id="btn-orders"><i class="fas fa-box"></i> My Orders</button>
+    <button class="profile-nav-btn" onclick="showTab('track',this)"><i class="fas fa-map-marker-alt"></i> Track Order</button>
+    <button class="profile-nav-btn" onclick="showTab('wishlist',this)" id="btn-wishlist"><i class="fas fa-heart"></i> My Wishlist</button>
+    <button class="profile-nav-btn" onclick="showTab('edit',this)"><i class="fas fa-edit"></i> Edit Profile</button>
+    <button class="profile-nav-btn" onclick="showTab('password',this)" id="btn-password"><i class="fas fa-key"></i> Change Password</button>
+    <a href="{{ url_for('logout') }}" style="display:flex;align-items:center;gap:12px;padding:14px 18px;font-family:var(--font-sans);font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--warm-gray);background:white;box-shadow:0 2px 10px rgba(0,0,0,0.05);margin-top:8px;">
+      <i class="fas fa-sign-out-alt" style="width:18px;color:var(--gold-dark);"></i> Logout
+    </a>
+  </div>
+
+  <div>
+    <!-- Overview -->
+    <div class="profile-section active" id="tab-overview">
+      <div class="profile-card">
+        <h2>Welcome, {{ user.name.split()[0] }}! ✦</h2>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-bottom:24px;">
+          <div style="background:var(--ivory-dark);padding:20px;text-align:center;">
+            <div style="font-family:var(--font-heading);font-size:36px;color:var(--crimson);">{{ orders|length }}</div>
+            <div style="font-family:var(--font-sans);font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--warm-gray);">Total Orders</div>
+          </div>
+          <div style="background:var(--ivory-dark);padding:20px;text-align:center;">
+            <div style="font-family:var(--font-heading);font-size:36px;color:var(--crimson);">{{ orders|selectattr('status','equalto','Delivered')|list|length }}</div>
+            <div style="font-family:var(--font-sans);font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--warm-gray);">Delivered</div>
+          </div>
+          <div style="background:var(--ivory-dark);padding:20px;text-align:center;">
+            <div style="font-family:var(--font-heading);font-size:36px;color:var(--crimson);">{{ orders|selectattr('status','ne','Delivered')|list|length }}</div>
+            <div style="font-family:var(--font-sans);font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--warm-gray);">In Progress</div>
+          </div>
+        </div>
+        <p style="color:var(--warm-gray);font-size:15px;font-style:italic;">Explore our <a href="{{ url_for('collections') }}" style="color:var(--crimson);">latest collections</a> or <a href="{{ url_for('customize') }}" style="color:var(--crimson);">design your own saree</a>.</p>
+      </div>
+    </div>
+
+    <!-- My Orders -->
+    <div class="profile-section" id="tab-orders">
+      <div class="profile-card">
+        <h2>My Orders</h2>
+        {% if orders %}
+        <div style="overflow-x:auto;">
+          <table style="width:100%;border-collapse:collapse;font-size:14px;">
+            <thead><tr style="border-bottom:2px solid var(--ivory-dark);">
+              <th style="text-align:left;padding:10px 12px;font-family:var(--font-sans);font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--gold-dark);">Order #</th>
+              <th style="text-align:left;padding:10px 12px;font-family:var(--font-sans);font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--gold-dark);">Date</th>
+              <th style="text-align:left;padding:10px 12px;font-family:var(--font-sans);font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--gold-dark);">Total</th>
+              <th style="text-align:left;padding:10px 12px;font-family:var(--font-sans);font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--gold-dark);">Status</th>
+              <th style="text-align:left;padding:10px 12px;font-family:var(--font-sans);font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--gold-dark);">Action</th>
+            </tr></thead>
+            <tbody>
+              {% for order in orders %}
+              <tr style="border-bottom:1px solid var(--ivory-dark);">
+                <td style="padding:14px 12px;"><strong class="order-num">{{ order.order_number }}</strong></td>
+                <td style="padding:14px 12px;color:var(--warm-gray);">{{ order.created_at.strftime('%d %b %Y') }}</td>
+                <td style="padding:14px 12px;color:var(--crimson);font-weight:600;">₹{{ "{:,.0f}".format(order.total) }}</td>
+                <td style="padding:14px 12px;"><span class="status-pill status-{{ order.status.replace(' ','.')}}">{{ order.status }}</span></td>
+                <td style="padding:14px 12px;">
+                  <a href="{{ url_for('track_order') }}?order_number={{ order.order_number }}" style="font-family:var(--font-sans);font-size:11px;color:var(--crimson);letter-spacing:1px;text-decoration:underline;">Track</a>
+                  &nbsp;|&nbsp;
+                  <a href="{{ url_for('order_detail', order_number=order.order_number) }}" style="font-family:var(--font-sans);font-size:11px;color:var(--crimson);letter-spacing:1px;text-decoration:underline;">Details</a>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        <div style="text-align:center;padding:50px 20px;">
+          <i class="fas fa-box-open" style="font-size:56px;color:var(--gold);display:block;margin-bottom:16px;"></i>
+          <h3 style="font-family:var(--font-heading);font-size:24px;color:var(--charcoal);margin-bottom:10px;">No orders yet</h3>
+          <p style="color:var(--warm-gray);margin-bottom:24px;">Discover our beautiful collections and place your first order!</p>
+          <a href="{{ url_for('collections') }}" class="btn btn-gold">Explore Collections</a>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Track Order -->
+    <div class="profile-section" id="tab-track">
+      <div class="profile-card">
+        <h2>Track Your Order</h2>
+        <form method="GET" action="{{ url_for('track_order') }}" style="display:flex;gap:12px;margin-bottom:30px;">
+          <input type="text" name="order_number" placeholder="Enter your Order Number (e.g. VIV12345678)" style="flex:1;padding:12px 16px;border:1.5px solid rgba(201,168,76,0.3);background:var(--ivory);font-family:var(--font-body);font-size:15px;outline:none;" />
+          <button type="submit" class="btn btn-gold"><i class="fas fa-search"></i> Track</button>
+        </form>
+        {% if orders %}
+        <div class="section-label" style="text-align:left;margin-bottom:16px;">Your Recent Orders</div>
+        {% for order in orders[:3] %}
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid var(--ivory-dark);">
+          <div>
+            <strong style="font-family:var(--font-sans);font-size:13px;color:var(--crimson);">{{ order.order_number }}</strong>
+            <span style="font-size:13px;color:var(--warm-gray);margin-left:12px;">{{ order.created_at.strftime('%d %b %Y') }}</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;">
+            <span class="status-pill status-{{ order.status.replace(' ','.')}}">{{ order.status }}</span>
+            <a href="{{ url_for('track_order') }}?order_number={{ order.order_number }}" class="btn btn-outline" style="padding:6px 14px;font-size:10px;">Track</a>
+          </div>
+        </div>
+        {% endfor %}
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Edit Profile -->
+    <div class="profile-section" id="tab-edit">
+      <div class="profile-card">
+        <h2>Edit Profile</h2>
+        <form method="POST" action="{{ url_for('update_profile') }}">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+            <div class="form-group">
+              <label>Full Name *</label>
+              <input type="text" name="name" required value="{{ user.name }}" />
+            </div>
+            <div class="form-group">
+              <label>Phone Number</label>
+              <input type="tel" name="phone" value="{{ user.phone or '' }}" placeholder="+91 XXXXX XXXXX" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Email Address</label>
+            <input type="email" value="{{ user.email }}" disabled style="opacity:.6;cursor:not-allowed;" />
+            <small style="font-family:var(--font-sans);font-size:11px;color:var(--warm-gray);">Email cannot be changed. Contact support if needed.</small>
+          </div>
+          <button type="submit" class="btn btn-crimson"><i class="fas fa-save"></i> Save Changes</button>
+        </form>
+      </div>
+    </div>
+
+
+    <!-- Wishlist -->
+    <div class="profile-section" id="tab-wishlist">
+      <div class="profile-card">
+        <h2>My Wishlist</h2>
+        {% if wishlist_products %}
+        <div class="products-grid" style="grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:18px">
+          {% for product in wishlist_products %}
+          <div class="product-card">
+            <div class="product-img-wrap">
+              {% if product.image %}
+                <img src="{{ url_for('static', filename='images/products/' + product.image) }}" alt="{{ product.name }}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" />
+                <div class="product-img-placeholder" style="display:none"><i class="fas fa-image"></i></div>
+              {% else %}
+                <div class="product-img-placeholder"><i class="fas fa-image"></i></div>
+              {% endif %}
+              <div class="product-actions-hover">
+                <button onclick="addToCart({{ product.id }})">Add to Bag</button>
+                <button onclick="window.location='/product/{{ product.id }}'">View</button>
+              </div>
+            </div>
+            <div class="product-info">
+              <h3>{{ product.name }}</h3>
+              <div class="product-price"><span class="price-current">₹{{ "{:,.0f}".format(product.price) }}</span></div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <div style="text-align:center;padding:50px;color:var(--warm-gray)">
+          <i class="fas fa-heart" style="font-size:48px;color:var(--gold);display:block;margin-bottom:14px"></i>
+          <p>No sarees saved yet. Browse our <a href="{{ url_for('all_products') }}" style="color:var(--crimson)">collections</a> and save your favourites.</p>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+    <!-- Change Password -->
+    <div class="profile-section" id="tab-password">
+      <div class="profile-card">
+        <h2>Change Password</h2>
+        <form method="POST" action="{{ url_for('change_password') }}" style="max-width:420px;">
+          <div class="form-group">
+            <label>Current Password *</label>
+            <input type="password" name="old_password" required placeholder="Enter current password" />
+          </div>
+          <div class="form-group">
+            <label>New Password *</label>
+            <input type="password" name="new_password" required placeholder="Minimum 6 characters" />
+          </div>
+          <div class="form-group">
+            <label>Confirm New Password *</label>
+            <input type="password" name="new_password2" required placeholder="Re-enter new password" />
+          </div>
+          <button type="submit" class="btn btn-crimson"><i class="fas fa-key"></i> Update Password</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+function showTab(name, btn) {
+  document.querySelectorAll('.profile-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.profile-nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  btn.classList.add('active');
+}
+// Auto-open tab from hash
+const hash = window.location.hash.replace('#','');
+if(hash === 'orders') showTab('orders', document.getElementById('btn-orders'));
+if(hash === 'change-password') showTab('password', document.getElementById('btn-password'));
+</script>
+{% endblock %}

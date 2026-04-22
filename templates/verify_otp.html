@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+{% block title %}Verify OTP – Vivah{% endblock %}
+{% block extra_head %}
+<style>
+.auth-page{min-height:70vh;display:flex;align-items:center;justify-content:center;padding:60px 20px;background:linear-gradient(135deg,var(--ivory) 60%,rgba(139,26,26,0.06) 100%)}
+.auth-card{background:white;width:100%;max-width:440px;box-shadow:0 8px 40px rgba(0,0,0,0.1);overflow:hidden}
+.auth-header{background:linear-gradient(135deg,var(--crimson),var(--charcoal));padding:32px;text-align:center;color:white}
+.auth-header .logo{font-family:var(--font-heading);font-size:28px;letter-spacing:5px;color:var(--gold-light)}
+.auth-header p{font-size:14px;opacity:.8;margin-top:6px;font-style:italic}
+.auth-body{padding:34px}
+.auth-footer{text-align:center;padding:16px 34px 26px;font-family:var(--font-sans);font-size:13px;color:var(--warm-gray);border-top:1px solid var(--ivory-dark)}
+.auth-footer a{color:var(--crimson);font-weight:700}
+.step-indicator{display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:24px}
+.step{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;font-family:var(--font-sans)}
+.step.active{background:var(--crimson);color:white}
+.step.done{background:var(--gold);color:white}
+.step.inactive{background:var(--ivory-dark);color:var(--warm-gray)}
+.step-line{width:40px;height:2px;background:var(--ivory-dark)}
+.step-line.done{background:var(--gold)}
+.otp-inputs{display:flex;gap:10px;justify-content:center;margin:24px 0}
+.otp-inputs input{width:48px;height:56px;text-align:center;font-size:24px;font-weight:700;font-family:var(--font-sans);border:2px solid var(--ivory-dark);background:white;outline:none;transition:var(--transition);letter-spacing:0}
+.otp-inputs input:focus{border-color:var(--crimson);box-shadow:0 0 0 3px rgba(139,26,26,0.1)}
+.email-badge{display:inline-flex;align-items:center;gap:6px;background:var(--ivory);padding:8px 16px;font-family:var(--font-sans);font-size:13px;color:var(--charcoal);margin-bottom:20px;border:1px solid var(--ivory-dark)}
+.email-badge i{color:var(--gold)}
+.timer{font-family:var(--font-sans);font-size:12px;color:var(--warm-gray);text-align:center;margin-top:16px}
+.timer span{color:var(--crimson);font-weight:700}
+</style>
+{% endblock %}
+{% block content %}
+<div class="auth-page">
+  <div class="auth-card">
+    <div class="auth-header">
+      <div class="logo">VIVAH</div>
+      <p>Verify your identity</p>
+    </div>
+    <div class="auth-body" style="text-align:center;">
+      <!-- Step Indicator -->
+      <div class="step-indicator">
+        <div class="step done"><i class="fas fa-check" style="font-size:12px;"></i></div>
+        <div class="step-line done"></div>
+        <div class="step active">2</div>
+        <div class="step-line"></div>
+        <div class="step inactive">3</div>
+      </div>
+
+      <div class="email-badge">
+        <i class="fas fa-envelope"></i> {{ email }}
+      </div>
+
+      <p style="font-family:var(--font-sans);font-size:13px;color:var(--warm-gray);line-height:1.7;">Enter the 6-digit OTP sent to your email</p>
+
+      <form method="POST" action="{{ url_for('verify_otp') }}" id="otp-form">
+        <div class="otp-inputs">
+          <input type="text" maxlength="1" class="otp-box" data-index="0" autocomplete="off" inputmode="numeric" />
+          <input type="text" maxlength="1" class="otp-box" data-index="1" autocomplete="off" inputmode="numeric" />
+          <input type="text" maxlength="1" class="otp-box" data-index="2" autocomplete="off" inputmode="numeric" />
+          <input type="text" maxlength="1" class="otp-box" data-index="3" autocomplete="off" inputmode="numeric" />
+          <input type="text" maxlength="1" class="otp-box" data-index="4" autocomplete="off" inputmode="numeric" />
+          <input type="text" maxlength="1" class="otp-box" data-index="5" autocomplete="off" inputmode="numeric" />
+        </div>
+        <input type="hidden" name="otp" id="otp-hidden" />
+        <button type="submit" class="btn btn-crimson" style="width:100%;justify-content:center;font-size:12px;padding:14px;">
+          <i class="fas fa-check-circle"></i> Verify OTP
+        </button>
+      </form>
+
+      <div class="timer">
+        OTP expires in <span id="countdown">10:00</span>
+      </div>
+
+      <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--ivory-dark);">
+        <p style="font-family:var(--font-sans);font-size:12px;color:var(--warm-gray);margin-bottom:10px;">Didn't receive the OTP?</p>
+        <form method="POST" action="{{ url_for('resend_otp') }}" style="display:inline;">
+          <button type="submit" id="resend-btn" class="btn btn-outline" style="font-size:11px;padding:8px 20px;">
+            <i class="fas fa-redo"></i> Resend OTP
+          </button>
+        </form>
+      </div>
+    </div>
+    <div class="auth-footer">
+      <a href="{{ url_for('forgot_password') }}"><i class="fas fa-arrow-left" style="margin-right:4px;"></i> Change Email</a>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// OTP Input handling
+const boxes = document.querySelectorAll('.otp-box');
+const hiddenInput = document.getElementById('otp-hidden');
+const form = document.getElementById('otp-form');
+
+boxes.forEach((box, idx) => {
+  box.addEventListener('input', (e) => {
+    const val = e.target.value.replace(/\D/g, '');
+    e.target.value = val;
+    if (val && idx < boxes.length - 1) boxes[idx + 1].focus();
+    updateHidden();
+  });
+  box.addEventListener('keydown', (e) => {
+    if (e.key === 'Backspace' && !e.target.value && idx > 0) {
+      boxes[idx - 1].focus();
+    }
+  });
+  box.addEventListener('paste', (e) => {
+    e.preventDefault();
+    const text = (e.clipboardData || window.clipboardData).getData('text').replace(/\D/g, '');
+    for (let i = 0; i < boxes.length && i < text.length; i++) {
+      boxes[i].value = text[i];
+    }
+    if (text.length >= boxes.length) boxes[boxes.length - 1].focus();
+    else if (text.length > 0) boxes[text.length].focus();
+    updateHidden();
+  });
+});
+
+function updateHidden() {
+  hiddenInput.value = Array.from(boxes).map(b => b.value).join('');
+}
+
+form.addEventListener('submit', () => updateHidden());
+
+// Auto-focus first box
+boxes[0].focus();
+
+// Countdown timer
+let timeLeft = 600; // 10 minutes
+const countdownEl = document.getElementById('countdown');
+const timer = setInterval(() => {
+  timeLeft--;
+  if (timeLeft <= 0) {
+    clearInterval(timer);
+    countdownEl.textContent = 'Expired';
+    countdownEl.style.color = '#c00';
+  } else {
+    const min = Math.floor(timeLeft / 60);
+    const sec = timeLeft % 60;
+    countdownEl.textContent = min + ':' + (sec < 10 ? '0' : '') + sec;
+  }
+}, 1000);
+</script>
+{% endblock %}
