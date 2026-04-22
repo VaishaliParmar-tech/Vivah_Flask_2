@@ -1,0 +1,575 @@
+{% extends "base.html" %}
+{% block title %}Shop All Sarees – Vivah{% endblock %}
+
+{% block extra_head %}
+<style>
+.shop-hero{background:linear-gradient(135deg,var(--crimson),var(--charcoal));padding:52px 40px;text-align:center;color:white;position:relative;overflow:hidden}
+.shop-hero::before{content:'';position:absolute;inset:0;background:url('/static/images/hero/hero_banner3.jpg') center/cover;opacity:0.14}
+.shop-hero-inner{position:relative;z-index:1}
+.shop-hero h1{font-family:var(--font-heading);font-size:clamp(28px,5vw,52px);letter-spacing:4px;color:var(--gold-light)}
+
+.shop-layout{display:grid;grid-template-columns:260px 1fr;gap:24px;max-width:1400px;margin:0 auto;padding:28px 32px;align-items:start}
+
+/* ─── FILTER SIDEBAR ─── */
+.filter-sidebar{position:sticky;top:88px;background:white;box-shadow:0 2px 16px rgba(0,0,0,0.07);max-height:calc(100vh - 110px);overflow-y:auto}
+.filter-sidebar::-webkit-scrollbar{width:4px}
+.filter-sidebar::-webkit-scrollbar-thumb{background:var(--gold);border-radius:2px}
+.filter-header{background:linear-gradient(135deg,var(--crimson),var(--charcoal));padding:13px 16px;color:white;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:2}
+.filter-header h3{font-family:var(--font-heading);font-size:15px;letter-spacing:2px;color:var(--gold-light)}
+.filter-clear{font-family:var(--font-sans);font-size:10px;letter-spacing:2px;color:rgba(255,255,255,0.65);cursor:pointer;text-transform:uppercase;background:none;border:none;text-decoration:underline}
+.filter-clear:hover{color:var(--gold-light)}
+
+.filter-section{border-bottom:1px solid var(--ivory-dark)}
+.filter-section:last-child{border-bottom:none}
+.filter-section-toggle{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;cursor:pointer;user-select:none;background:none;border:none;width:100%;text-align:left}
+.filter-section-toggle:hover{background:var(--ivory)}
+.filter-section-title{font-family:var(--font-sans);font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--gold-dark);display:flex;align-items:center;gap:7px}
+.filter-section-title i{color:var(--gold)}
+.filter-section-toggle .chevron{color:var(--warm-gray);font-size:11px;transition:transform 0.2s}
+.filter-section-toggle.collapsed .chevron{transform:rotate(-90deg)}
+.filter-section-body{padding:4px 16px 14px;overflow:hidden;transition:max-height 0.25s ease}
+.filter-section-body.collapsed{display:none}
+
+/* Category pills */
+.f-cat-pills{display:flex;flex-direction:column;gap:4px}
+.f-cat-pill{display:flex;align-items:center;gap:8px;padding:6px 8px;font-family:var(--font-sans);font-size:12px;color:#555;cursor:pointer;border-radius:2px;transition:all 0.2s;text-decoration:none}
+.f-cat-pill:hover{background:var(--ivory);color:var(--crimson)}
+.f-cat-pill.active{background:var(--ivory-dark);color:var(--crimson);font-weight:700}
+.f-cat-pill .dot{width:7px;height:7px;border-radius:50%;background:var(--gold);flex-shrink:0}
+
+/* Price range */
+.price-inputs{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.price-inputs input{width:100%;padding:7px 9px;border:1.5px solid rgba(201,168,76,0.25);background:var(--ivory);font-size:13px;font-family:var(--font-sans);outline:none;border-radius:2px;box-sizing:border-box}
+.price-inputs input:focus{border-color:var(--gold)}
+.price-quick{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px}
+.price-quick a{padding:4px 9px;border:1px solid rgba(201,168,76,0.35);font-family:var(--font-sans);font-size:10px;color:var(--crimson);cursor:pointer;text-decoration:none;transition:all 0.15s}
+.price-quick a:hover{background:var(--gold);color:var(--charcoal);border-color:var(--gold)}
+
+/* Color filter */
+.f-color-grid{display:flex;flex-wrap:wrap;gap:6px}
+.f-color{width:26px;height:26px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:all 0.2s;box-shadow:0 1px 4px rgba(0,0,0,0.15)}
+.f-color:hover,.f-color.active{border-color:var(--gold);transform:scale(1.15);box-shadow:0 0 0 2px rgba(201,168,76,0.4)}
+
+/* Fabric / Occasion checkboxes */
+.f-checks{display:flex;flex-direction:column;gap:5px}
+.f-check-label{display:flex;align-items:center;gap:8px;font-family:var(--font-sans);font-size:12px;color:#555;cursor:pointer;padding:3px 0}
+.f-check-label input{accent-color:var(--crimson);width:14px;height:14px;flex-shrink:0}
+.f-check-label:hover{color:var(--crimson)}
+
+/* Apply button */
+.btn-apply-filter{width:100%;padding:10px;background:var(--crimson);color:var(--gold-light);font-family:var(--font-sans);font-size:11px;letter-spacing:3px;text-transform:uppercase;font-weight:700;border:none;cursor:pointer;transition:all 0.2s}
+.btn-apply-filter:hover{filter:brightness(1.1)}
+
+/* ─── PRODUCTS AREA ─── */
+.products-area{}
+.sort-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;padding:12px 16px;background:white;box-shadow:0 1px 8px rgba(0,0,0,0.06)}
+.sort-bar .result-count{font-family:var(--font-sans);font-size:12px;color:var(--warm-gray);letter-spacing:1px}
+.sort-bar .result-count strong{color:var(--charcoal)}
+.sort-select{padding:8px 14px;border:1.5px solid rgba(201,168,76,0.3);background:var(--ivory);font-family:var(--font-sans);font-size:12px;outline:none;cursor:pointer}
+.sort-select:focus{border-color:var(--gold)}
+
+/* Active filter tags */
+.active-filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px}
+.af-tag{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;background:var(--ivory-dark);border:1px solid rgba(201,168,76,0.3);font-family:var(--font-sans);font-size:11px;color:var(--charcoal-light)}
+.af-tag .remove{cursor:pointer;color:var(--crimson);font-size:12px;margin-left:2px}
+.af-tag .remove:hover{color:var(--crimson-light)}
+
+/* Wishlist heart on card */
+.wl-btn{position:absolute;top:10px;right:10px;width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,0.92);border:none;cursor:pointer;font-size:15px;color:var(--warm-gray);box-shadow:0 2px 8px rgba(0,0,0,0.15);z-index:2;transition:all 0.25s;display:flex;align-items:center;justify-content:center}
+.wl-btn:hover,.wl-btn.active{background:var(--crimson);color:white}
+.wl-btn.active{color:white;background:var(--crimson)}
+
+/* Discount badge */
+.discount-badge{position:absolute;top:10px;left:10px;background:var(--crimson);color:white;font-family:var(--font-sans);font-size:9px;letter-spacing:1px;padding:3px 8px;font-weight:700;z-index:2}
+
+@media(max-width:900px){.shop-layout{grid-template-columns:1fr;padding:20px 16px}.filter-sidebar{position:static}}
+@media(max-width:600px){.shop-layout{padding:12px}.sort-bar{flex-direction:column;gap:10px;align-items:flex-start}}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="shop-hero">
+  <div class="shop-hero-inner">
+    <div class="section-label" style="color:var(--gold-light)">Vivah Sarees</div>
+    <h1>Shop All Sarees</h1>
+    <div class="section-divider"></div>
+    <p style="font-style:italic;opacity:.8">{{ products|length }} saree{{ 's' if products|length != 1 }} found</p>
+  </div>
+</div>
+
+<div class="shop-layout">
+
+  <!-- ── FILTER SIDEBAR ── -->
+  <div class="filter-sidebar">
+    <div class="filter-header">
+      <h3><i class="fas fa-sliders-h" style="margin-right:8px"></i>Filters</h3>
+      <button class="filter-clear" onclick="clearFilters()">Clear All</button>
+    </div>
+
+    <form id="filterForm" action="{{ url_for('all_products') }}" method="GET">
+
+      <!-- Category -->
+      <div class="filter-section">
+        <button type="button" class="filter-section-toggle" onclick="toggleFilter(this)">
+          <span class="filter-section-title"><i class="fas fa-tags"></i> Category</span>
+          <i class="fas fa-chevron-down chevron"></i>
+        </button>
+        <div class="filter-section-body">
+          <div class="f-cat-pills">
+            <a href="{{ url_for('all_products', sort=filters.sort) }}" class="f-cat-pill {{ 'active' if not filters.category }}">
+              <span class="dot"></span> All
+            </a>
+            {% for cat in categories %}
+            <a href="{{ url_for('all_products', category=cat.slug, sort=filters.sort) }}" class="f-cat-pill {{ 'active' if filters.category == cat.slug }}">
+              <span class="dot"></span> {{ cat.name }}
+            </a>
+            {% endfor %}
+          </div>
+          <input type="hidden" name="category" id="catInput" value="{{ filters.category }}" />
+        </div>
+      </div>
+
+      <!-- Price Range -->
+      <div class="filter-section">
+        <button type="button" class="filter-section-toggle" onclick="toggleFilter(this)">
+          <span class="filter-section-title"><i class="fas fa-indian-rupee-sign"></i> Price Range</span>
+          <i class="fas fa-chevron-down chevron"></i>
+        </button>
+        <div class="filter-section-body">
+          <div class="price-inputs">
+            <input type="number" name="min_price" id="minPrice" placeholder="Min ₹" value="{{ filters.min_price or '' }}" />
+            <input type="number" name="max_price" id="maxPrice" placeholder="Max ₹" value="{{ filters.max_price or '' }}" />
+          </div>
+          <div class="price-quick">
+            {% for mn,mx,lbl in [(0,1000,'<₹1K'),(1000,5000,'₹1–5K'),(5000,15000,'₹5–15K'),(15000,50000,'₹15–50K')] %}
+            <a href="{{ url_for('all_products', min_price=mn, max_price=mx, category=filters.category, sort=filters.sort) }}">{{ lbl }}</a>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Color -->
+      <div class="filter-section">
+        <button type="button" class="filter-section-toggle" onclick="toggleFilter(this)">
+          <span class="filter-section-title"><i class="fas fa-palette"></i> Color{% if filters.color %}&nbsp;<span style="color:var(--crimson);font-size:9px">● {{ filters.color }}</span>{% endif %}</span>
+          <i class="fas fa-chevron-down chevron"></i>
+        </button>
+        <div class="filter-section-body">
+          <div class="f-color-grid">
+            {% set color_map = [('#8B1A1A','Red'),('#C9A84C','Gold'),('#1A1A5E','Navy'),('#2D6A4F','Green'),('#7B2D8B','Purple'),('#D4855A','Peach'),('#F8BBD0','Pink'),('#BDC3C7','Silver'),('#2C2C2C','Black'),('#FF8C00','Orange'),('#1C6B9E','Blue'),('#800000','Maroon')] %}
+            {% for hex, name in color_map %}
+            <div class="f-color {% if filters.color == name %}active{% endif %}"
+                 style="background:{{ hex }}" title="{{ name }}"
+                 onclick="setColor('{{ name }}')" data-color="{{ name }}"></div>
+            {% endfor %}
+          </div>
+          <input type="hidden" name="color" id="colorFilter" value="{{ filters.color }}" />
+          {% if filters.color %}<div style="margin-top:8px;font-family:var(--font-sans);font-size:11px;color:var(--warm-gray)">Selected: <strong>{{ filters.color }}</strong> <span onclick="clearColor()" style="cursor:pointer;color:var(--crimson)">✕ clear</span></div>{% endif %}
+        </div>
+      </div>
+
+      <!-- Fabric -->
+      <div class="filter-section">
+        <button type="button" class="filter-section-toggle {% if not filters.fabric %}collapsed{% endif %}" onclick="toggleFilter(this)">
+          <span class="filter-section-title"><i class="fas fa-layer-group"></i> Fabric{% if filters.fabric %}&nbsp;<span style="color:var(--crimson);font-size:9px">● {{ filters.fabric }}</span>{% endif %}</span>
+          <i class="fas fa-chevron-down chevron"></i>
+        </button>
+        <div class="filter-section-body {% if not filters.fabric %}collapsed{% endif %}">
+          <div class="f-checks">
+            {% for fab in fabrics %}
+            <label class="f-check-label">
+              <input type="checkbox" name="fabric" value="{{ fab }}" {{ 'checked' if filters.fabric == fab }}
+                     onchange="document.getElementById('filterForm').submit()" /> {{ fab }}
+            </label>
+            {% else %}
+            {% for fab in ['Pure Silk','Kanjivaram Silk','Bandhani','Patola','Gharchola','Organza','Chiffon','Net','Velvet','Tissue','Banarasi Silk','Georgette'] %}
+            <label class="f-check-label">
+              <input type="checkbox" name="fabric" value="{{ fab }}" {{ 'checked' if filters.fabric == fab }}
+                     onchange="document.getElementById('filterForm').submit()" /> {{ fab }}
+            </label>
+            {% endfor %}
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Occasion -->
+      <div class="filter-section">
+        <button type="button" class="filter-section-toggle {% if not filters.occasion %}collapsed{% endif %}" onclick="toggleFilter(this)">
+          <span class="filter-section-title"><i class="fas fa-calendar-heart"></i> Occasion{% if filters.occasion %}&nbsp;<span style="color:var(--crimson);font-size:9px">● {{ filters.occasion }}</span>{% endif %}</span>
+          <i class="fas fa-chevron-down chevron"></i>
+        </button>
+        <div class="filter-section-body {% if not filters.occasion %}collapsed{% endif %}">
+          <div class="f-checks">
+            {% for occ in occasions %}
+            <label class="f-check-label">
+              <input type="checkbox" name="occasion" value="{{ occ }}" {{ 'checked' if filters.occasion == occ }}
+                     onchange="document.getElementById('filterForm').submit()" /> {{ occ }}
+            </label>
+            {% else %}
+            {% for occ in ['Bridal / Wedding','Sangeet / Mehendi','Reception','Haldi','Festive / Puja','Casual','Party','Office'] %}
+            <label class="f-check-label">
+              <input type="checkbox" name="occasion" value="{{ occ }}" {{ 'checked' if filters.occasion == occ }}
+                     onchange="document.getElementById('filterForm').submit()" /> {{ occ }}
+            </label>
+            {% endfor %}
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+
+      <input type="hidden" name="sort" id="sortHidden" value="{{ filters.sort }}" />
+
+      <div style="padding:14px 20px">
+        <button type="submit" class="btn-apply-filter"><i class="fas fa-filter"></i> Apply Filters</button>
+      </div>
+
+    </form>
+
+    <!-- Personalised Recommendation Box -->
+    <div style="padding:18px 20px;background:linear-gradient(135deg,rgba(139,26,26,0.06),rgba(201,168,76,0.08));border-top:2px solid var(--gold)">
+      <div class="filter-section-title" style="margin-bottom:12px"><i class="fas fa-wand-magic-sparkles"></i> Get Personalised Picks</div>
+      <p style="font-size:12px;color:var(--warm-gray);margin-bottom:12px;line-height:1.6">Tell us about yourself — we suggest the best sarees for your body type and skin tone.</p>
+      <a href="#recommendation-section" class="btn btn-gold" style="width:100%;justify-content:center;padding:10px;font-size:10px" onclick="document.getElementById('recommendation-section').scrollIntoView({behavior:'smooth'});return false">
+        <i class="fas fa-sparkles"></i> Try Recommendation
+      </a>
+    </div>
+  </div>
+
+  <!-- ── PRODUCTS AREA ── -->
+  <div class="products-area">
+
+    <!-- Sort bar -->
+    <div class="sort-bar">
+      <div class="result-count">
+        Showing <strong>{{ products|length }}</strong> saree{{ 's' if products|length != 1 }}
+        {% if filters.category %} in <strong>{{ filters.category.replace('-', ' ')|title }}</strong>{% endif %}
+      </div>
+      <select class="sort-select" onchange="applySort(this.value)">
+        <option value="newest" {{ 'selected' if filters.sort=='newest' }}>Newest First</option>
+        <option value="price_asc" {{ 'selected' if filters.sort=='price_asc' }}>Price: Low to High</option>
+        <option value="price_desc" {{ 'selected' if filters.sort=='price_desc' }}>Price: High to Low</option>
+        <option value="name" {{ 'selected' if filters.sort=='name' }}>Name A–Z</option>
+      </select>
+    </div>
+
+    <!-- Active filter tags -->
+    {% set has_filters = filters.color or filters.fabric or filters.occasion or filters.min_price or filters.max_price %}
+    {% if has_filters %}
+    <div class="active-filters">
+      {% if filters.color %}<span class="af-tag"><i class="fas fa-palette" style="color:var(--gold)"></i>{{ filters.color }}<span class="remove" onclick="removeFilter('color')">✕</span></span>{% endif %}
+      {% if filters.fabric %}<span class="af-tag"><i class="fas fa-layer-group" style="color:var(--gold)"></i>{{ filters.fabric }}<span class="remove" onclick="removeFilter('fabric')">✕</span></span>{% endif %}
+      {% if filters.occasion %}<span class="af-tag"><i class="fas fa-calendar-heart" style="color:var(--gold)"></i>{{ filters.occasion }}<span class="remove" onclick="removeFilter('occasion')">✕</span></span>{% endif %}
+      {% if filters.min_price or filters.max_price %}<span class="af-tag"><i class="fas fa-rupee-sign" style="color:var(--gold)"></i>₹{{ filters.min_price or '0' }} – ₹{{ filters.max_price or '∞' }}<span class="remove" onclick="removeFilter('price')">✕</span></span>{% endif %}
+    </div>
+    {% endif %}
+
+    <!-- Products grid -->
+    {% if products %}
+    <div class="products-grid">
+      {% for product in products %}
+      <div class="product-card">
+        <div class="product-img-wrap">
+          {% if product.image %}
+            <img src="{{ url_for('static', filename='images/products/' + product.image) }}" alt="{{ product.name }}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" />
+            <div class="product-img-placeholder" style="display:none"><i class="fas fa-image"></i><span>{{ product.fabric or 'Saree' }}</span></div>
+          {% else %}
+            <div class="product-img-placeholder"><i class="fas fa-image"></i><span>{{ product.fabric or 'Saree' }}</span></div>
+          {% endif %}
+
+          {% if product.original_price and product.original_price > product.price %}
+          <div class="discount-badge">{{ ((1 - product.price/product.original_price)*100)|int }}% OFF</div>
+          {% endif %}
+
+          <div class="product-badges">
+            {% if product.is_new_arrival %}<span class="badge badge-new">New</span>{% endif %}
+            {% if product.is_wedding %}<span class="badge badge-wedding" style="margin-top:{% if product.is_new_arrival %}4px{% else %}0{% endif %}">Bridal</span>{% endif %}
+          </div>
+
+          <button class="wl-btn {{ 'active' if product.id in wishlist }}" id="wl-{{ product.id }}"
+            onclick="toggleWishlist({{ product.id }})" title="{{ 'Remove from' if product.id in wishlist else 'Add to' }} wishlist">
+            <i class="fas fa-heart"></i>
+          </button>
+
+          <div class="product-actions-hover">
+            <button onclick="addToCart({{ product.id }})"><i class="fas fa-shopping-bag"></i> Add</button>
+            <button onclick="window.location='/product/{{ product.id }}'"><i class="fas fa-eye"></i> View</button>
+          </div>
+        </div>
+        <div class="product-info">
+          <div class="category-tag">{{ product.category.name if product.category else 'Saree' }}</div>
+          <h3>{{ product.name }}</h3>
+          <div class="product-price">
+            <span class="price-current">₹{{ "{:,.0f}".format(product.price) }}</span>
+            {% if product.original_price and product.original_price > product.price %}<span class="price-original">₹{{ "{:,.0f}".format(product.original_price) }}</span>{% endif %}
+          </div>
+          {% if product.fabric %}<span class="product-fabric-tag">{{ product.fabric }}</span>{% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div style="text-align:center;padding:80px 20px">
+      <i class="fas fa-search" style="font-size:56px;color:var(--gold);display:block;margin-bottom:18px"></i>
+      <h3 style="font-family:var(--font-heading);font-size:26px;color:var(--charcoal);margin-bottom:10px">No sarees found</h3>
+      <p style="color:var(--warm-gray);margin-bottom:24px">Try adjusting your filters or browse all collections.</p>
+      <button onclick="clearFilters()" class="btn btn-gold">Clear Filters</button>
+    </div>
+    {% endif %}
+  </div>
+
+</div>
+
+<!-- ─── PERSONALISED RECOMMENDATION ─────────────────────────────── -->
+<section id="recommendation-section" class="section section-alt" style="scroll-margin-top:90px">
+  <div class="container" style="max-width:900px">
+    <div class="section-header">
+      <div class="section-label">✦ Smart Stylist</div>
+      <h2 class="section-title">Personalised Saree Recommendation</h2>
+      <div class="section-divider"></div>
+      <p class="section-desc">Tell us about yourself — we'll match you with the perfect sarees from our collection</p>
+    </div>
+
+    <div style="background:white;box-shadow:var(--shadow);overflow:hidden">
+      <div style="background:linear-gradient(135deg,var(--crimson),var(--charcoal));padding:18px 28px;color:white">
+        <div style="font-family:var(--font-sans);font-size:11px;letter-spacing:3px;color:var(--gold-light);text-transform:uppercase">✦ Enter Your Details — Instant Matching</div>
+      </div>
+      <div style="padding:32px 28px">
+
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px;margin-bottom:20px">
+
+          <div class="form-group">
+            <label style="display:block;font-family:var(--font-sans);font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--warm-gray);margin-bottom:6px">Skin Tone</label>
+            <select id="rec-skin" style="width:100%;padding:11px 13px;border:1.5px solid rgba(201,168,76,0.25);background:var(--ivory);font-family:var(--font-body);font-size:14px;outline:none">
+              <option value="">Select skin tone</option>
+              <option value="fair">Fair / Light</option>
+              <option value="medium">Wheatish / Medium</option>
+              <option value="dark">Dusky / Deep</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label style="display:block;font-family:var(--font-sans);font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--warm-gray);margin-bottom:6px">Body Type</label>
+            <select id="rec-build" style="width:100%;padding:11px 13px;border:1.5px solid rgba(201,168,76,0.25);background:var(--ivory);font-family:var(--font-body);font-size:14px;outline:none">
+              <option value="">Select body type</option>
+              <option value="slim">Slim / Lean</option>
+              <option value="curvy">Curvy / Full Figure</option>
+              <option value="plus">Plus Size</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label style="display:block;font-family:var(--font-sans);font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--warm-gray);margin-bottom:6px">Occasion</label>
+            <select id="rec-occasion" style="width:100%;padding:11px 13px;border:1.5px solid rgba(201,168,76,0.25);background:var(--ivory);font-family:var(--font-body);font-size:14px;outline:none">
+              <option value="">Select occasion</option>
+              <option value="wedding">Wedding / Bridal</option>
+              <option value="party">Party / Reception</option>
+              <option value="casual">Casual / Daily</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="margin-bottom:24px">
+          <div class="form-group">
+            <label style="display:block;font-family:var(--font-sans);font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--warm-gray);margin-bottom:6px">Budget</label>
+            <select id="rec-budget" style="width:100%;padding:11px 13px;border:1.5px solid rgba(201,168,76,0.25);background:var(--ivory);font-family:var(--font-body);font-size:14px;outline:none">
+              <option value="">Select budget</option>
+              <option value="low">Under ₹1,000</option>
+              <option value="medium">₹1,000 – ₹3,000</option>
+              <option value="high">₹3,000 – ₹10,000</option>
+              <option value="luxury">Above ₹10,000</option>
+            </select>
+          </div>
+        </div>
+
+        <button onclick="getRecommendation()" style="width:100%;padding:14px;background:linear-gradient(135deg,var(--gold-dark),var(--gold),var(--gold-light));color:var(--charcoal);font-family:var(--font-sans);font-size:11px;letter-spacing:3px;text-transform:uppercase;font-weight:700;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all 0.3s" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">
+          <i class="fas fa-wand-magic-sparkles"></i> Find My Perfect Sarees
+        </button>
+      </div>
+
+      <!-- Results -->
+      <div id="rec-results" style="display:none;padding:28px;background:var(--ivory);border-top:2px solid var(--gold)">
+        <div style="font-family:var(--font-sans);font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--gold-dark);margin-bottom:20px;display:flex;align-items:center;gap:8px">
+          <i class="fas fa-wand-magic-sparkles" style="color:var(--gold)"></i> Your Matched Sarees
+        </div>
+        <div id="rec-summary" style="margin-bottom:20px;padding:14px 18px;background:white;border-left:3px solid var(--gold);font-size:14px;color:var(--charcoal);line-height:1.7;display:none"></div>
+        <div id="rec-cards" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:20px"></div>
+        <div id="rec-empty" style="display:none;text-align:center;padding:32px;color:var(--warm-gray)">
+          <i class="fas fa-search" style="font-size:36px;color:var(--gold);margin-bottom:12px;display:block"></i>
+          <p style="font-size:15px">No exact matches found in current inventory.</p>
+          <p style="font-size:13px;margin-top:6px">Try adjusting your budget or occasion for more results.</p>
+          <div id="rec-tip" style="margin-top:16px;font-size:13px;color:var(--crimson);font-style:italic"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// ── Collapsible filter sections ────────────────────────────
+function toggleFilter(btn) {
+  btn.classList.toggle('collapsed');
+  const body = btn.nextElementSibling;
+  body.classList.toggle('collapsed');
+}
+
+function applySort(val) {
+  document.getElementById('sortHidden').value = val;
+  document.getElementById('filterForm').submit();
+}
+
+function setColor(name) {
+  document.getElementById('colorFilter').value = name;
+  document.querySelectorAll('.f-color').forEach(c => {
+    c.classList.toggle('active', c.dataset.color === name);
+  });
+}
+
+function clearColor() {
+  document.getElementById('colorFilter').value = '';
+  document.querySelectorAll('.f-color').forEach(c => c.classList.remove('active'));
+  document.getElementById('filterForm').submit();
+}
+
+function clearFilters() {
+  window.location = '{{ url_for("all_products") }}';
+}
+
+function removeFilter(type) {
+  const url = new URL(window.location.href);
+  if (type === 'color') url.searchParams.delete('color');
+  else if (type === 'fabric') url.searchParams.delete('fabric');
+  else if (type === 'occasion') url.searchParams.delete('occasion');
+  else if (type === 'price') { url.searchParams.delete('min_price'); url.searchParams.delete('max_price'); }
+  window.location = url.toString();
+}
+
+// Wishlist toggle
+function toggleWishlist(id) {
+  fetch('/wishlist/toggle/' + id, { method: 'POST' })
+  .then(r => r.json())
+  .then(d => {
+    const btn = document.getElementById('wl-' + id);
+    if (btn) btn.classList.toggle('active', d.in_wishlist);
+    const c = document.getElementById('flashContainer');
+    const m = document.createElement('div');
+    m.className = 'flash-msg ' + (d.in_wishlist ? 'success' : '');
+    m.textContent = d.message; c.appendChild(m);
+    setTimeout(() => m.remove(), 3000);
+  });
+}
+
+// ─── LOCAL SAREE RECOMMENDATION (No API) ─────────────────────
+const allProducts = {{ products_json | tojson }};
+
+function recommendSaree(skin, weight, budget, occasion) {
+    let colors = [];
+    let fabrics = [];
+
+    if (skin === 'dark')        colors = ['Maroon','Royal Blue','Mustard','Gold'];
+    else if (skin === 'fair')   colors = ['Pastel Pink','Peach','Lavender','Mint Green','Pink','Light','Red',,'Yellow'];
+    else if (skin === 'medium') colors = ['Green','Teal','Orange','Magenta','Rust'];
+
+    if (weight === 'slim')  fabrics = ['Net','Organza','Chiffon','Tissue'];
+    else if (weight === 'curvy') fabrics = ['Silk','Georgette','Crepe','Banarasi'];
+    else if (weight === 'plus')  fabrics = ['Chiffon','Cotton'];
+
+    let occKeywords = [];
+    if (occasion === 'wedding') occKeywords = ['Bridal','Wedding','Bride','Panetar','Gharchola'];
+    else if (occasion === 'party') occKeywords = ['Party','Reception','Sangeet'];
+    else if (occasion === 'casual') occKeywords = ['Casual','Daily','Cotton','Ajarakh'];
+
+    let min = 0, max = 9999999;
+    if (budget === 'low')    { min = 0;     max = 1000;  }
+    else if (budget === 'medium') { min = 1000;  max = 3000;  }
+    else if (budget === 'high')   { min = 3000;  max = 10000; }
+    else if (budget === 'luxury') { min = 10000; max = 9999999; }
+
+    let result = allProducts.filter(p => {
+        let matchColor  = colors.length === 0 || colors.some(c => (p.color||'').toLowerCase().includes(c.toLowerCase()));
+        let matchFabric = fabrics.some(f => (p.fabric||'').toLowerCase().includes(f.toLowerCase()));
+        let matchOcc    = occKeywords.length === 0 || occKeywords.some(o => ((p.category_name||'')+(p.occasion||'')+(p.fabric||'')).toLowerCase().includes(o.toLowerCase()));
+        let matchBudget = p.price >= min && p.price <= max;
+        return (matchColor || matchFabric) && matchOcc && matchBudget;
+    });
+
+    // Fallback: relax occasion
+    if (result.length === 0) {
+        result = allProducts.filter(p => {
+            let matchFabric = fabrics.some(f => (p.fabric||'').toLowerCase().includes(f.toLowerCase()));
+            let matchBudget = p.price >= min && p.price <= max;
+            return matchFabric && matchBudget;
+        });
+    }
+    // Final fallback: just budget
+    if (result.length === 0) {
+        result = allProducts.filter(p => p.price >= min && p.price <= max);
+    }
+
+    return result.slice(0, 6);
+}
+
+function getRecommendation() {
+    const skin     = document.getElementById('rec-skin').value;
+    const build    = document.getElementById('rec-build').value;
+    const occasion = document.getElementById('rec-occasion').value;
+    const budget   = document.getElementById('rec-budget').value;
+    if (!skin || !build) {
+        alert('Please select at least Skin Tone and Body Type.'); return;
+    }
+
+    const results = recommendSaree(skin, build, budget, occasion);
+
+    document.getElementById('rec-results').style.display = 'block';
+    document.getElementById('rec-results').scrollIntoView({ behavior: 'smooth' });
+
+    const cardsEl   = document.getElementById('rec-cards');
+    const emptyEl   = document.getElementById('rec-empty');
+    const summaryEl = document.getElementById('rec-summary');
+
+    const skinLabels   = { fair:'Fair / Light', medium:'Wheatish / Medium', dark:'Dusky / Deep' };
+    const buildLabels  = { slim:'Slim', curvy:'Curvy', plus:'Plus Size' };
+    const occLabels    = { wedding:'Wedding', party:'Party / Reception', casual:'Casual' };
+    const budgetLabels = { low:'under ₹1,000', medium:'₹1,000–₹3,000', high:'₹3,000–₹10,000', luxury:'above ₹10,000' };
+    summaryEl.innerHTML = `<i class="fas fa-wand-magic-sparkles" style="color:var(--gold);margin-right:6px"></i>
+        Found <strong>${results.length}</strong> saree${results.length !== 1 ? 's' : ''} for
+        <strong>${skinLabels[skin]||skin}</strong> skin &amp;
+        <strong>${buildLabels[build]||build}</strong> body type
+        ${occasion ? ', <strong>'+(occLabels[occasion]||occasion)+'</strong> occasion' : ''}
+        ${budget ? ', '+(budgetLabels[budget]||'') : ''}.`;
+    summaryEl.style.display = 'block';
+
+    if (results.length === 0) {
+        cardsEl.innerHTML = '';
+        emptyEl.style.display = 'block';
+        document.getElementById('rec-tip').textContent = 'Try adjusting your budget or occasion for more results.';
+    } else {
+        emptyEl.style.display = 'none';
+        cardsEl.innerHTML = results.map(p => `
+            <div style="background:white;box-shadow:0 2px 12px rgba(0,0,0,0.08);overflow:hidden;transition:transform 0.2s" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform=''">
+                <a href="/product/${p.id}" style="text-decoration:none">
+                    <div style="aspect-ratio:3/4;background:var(--ivory-dark);overflow:hidden">
+                        ${p.image
+                            ? `<img src="/static/images/products/${p.image}" alt="${p.name}" style="width:100%;height:100%;object-fit:cover"/>`
+                            : `<div style="height:100%;display:flex;align-items:center;justify-content:center;font-size:40px">🥻</div>`}
+                    </div>
+                    <div style="padding:12px">
+                        <div style="font-size:14px;font-weight:600;color:var(--charcoal);margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.name}</div>
+                        ${p.fabric ? `<div style="font-size:12px;color:var(--warm-gray);margin-bottom:6px">${p.fabric}${p.color ? ' · '+p.color : ''}</div>` : ''}
+                        <div style="font-size:18px;color:var(--crimson);font-weight:700">₹${p.price.toLocaleString('en-IN')}</div>
+                    </div>
+                </a>
+                <div style="padding:0 12px 12px;display:flex;gap:8px">
+                    <button onclick="addToCart(${p.id})" style="flex:1;padding:9px;background:var(--crimson);color:white;border:none;cursor:pointer;font-size:11px;font-family:var(--font-sans);letter-spacing:1px">
+                        <i class="fas fa-bag-shopping"></i> Add to Bag
+                    </button>
+                    <a href="/product/${p.id}" style="padding:9px 14px;border:1.5px solid var(--gold);color:var(--charcoal);font-size:11px;font-family:var(--font-sans);display:flex;align-items:center;text-decoration:none">View</a>
+                </div>
+            </div>`).join('');
+    }
+}
+</script>
+{% endblock %}

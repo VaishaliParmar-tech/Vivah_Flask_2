@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% block title %}My Wishlist – Vivah{% endblock %}
+{% block extra_head %}
+<style>
+.wl-hero{background:linear-gradient(135deg,var(--crimson),var(--charcoal));padding:54px 40px;text-align:center;color:white}
+.wl-hero h1{font-family:var(--font-heading);font-size:clamp(28px,5vw,50px);letter-spacing:4px;color:var(--gold-light)}
+.empty-wl{text-align:center;padding:80px 20px}
+.empty-wl i{font-size:72px;color:var(--gold);display:block;margin-bottom:20px}
+.empty-wl h3{font-family:var(--font-heading);font-size:28px;color:var(--charcoal);margin-bottom:12px}
+</style>
+{% endblock %}
+{% block content %}
+<div class="wl-hero">
+  <div class="section-label" style="color:var(--gold-light)">Your Saved Sarees</div>
+  <h1>My Wishlist</h1>
+  <div class="section-divider"></div>
+  <p style="font-style:italic;opacity:.8">{{ products|length }} saree{{ 's' if products|length != 1 }} saved</p>
+</div>
+
+<section class="section">
+  <div class="container">
+    {% if products %}
+    <div class="products-grid">
+      {% for product in products %}
+      <div class="product-card" id="wl-card-{{ product.id }}">
+        <div class="product-img-wrap">
+          {% if product.image %}
+            <img src="{{ url_for('static', filename='images/products/' + product.image) }}" alt="{{ product.name }}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" />
+            <div class="product-img-placeholder" style="display:none"><i class="fas fa-image"></i><span>{{ product.fabric or 'Saree' }}</span></div>
+          {% else %}
+            <div class="product-img-placeholder"><i class="fas fa-image"></i><span>{{ product.fabric or 'Saree' }}</span></div>
+          {% endif %}
+          <div class="product-badges">
+            {% if product.is_new_arrival %}<span class="badge badge-new">New</span>{% endif %}
+            {% if product.is_wedding %}<span class="badge badge-wedding">Bridal</span>{% endif %}
+          </div>
+          <!-- Remove from wishlist -->
+          <button onclick="removeWishlist({{ product.id }})"
+            style="position:absolute;top:10px;right:10px;background:rgba(255,255,255,0.92);border:none;width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:15px;color:var(--crimson);box-shadow:0 2px 8px rgba(0,0,0,0.15);z-index:2;transition:all 0.2s"
+            onmouseover="this.style.background='var(--crimson)';this.style.color='white'"
+            onmouseout="this.style.background='rgba(255,255,255,0.92)';this.style.color='var(--crimson)'"
+            title="Remove from wishlist">
+            <i class="fas fa-heart-broken"></i>
+          </button>
+          <div class="product-actions-hover">
+            <button onclick="addToCart({{ product.id }})"><i class="fas fa-shopping-bag"></i> Add to Bag</button>
+            <button onclick="window.location='/product/{{ product.id }}'"><i class="fas fa-eye"></i> View</button>
+          </div>
+        </div>
+        <div class="product-info">
+          <div class="category-tag">{{ product.category.name if product.category else 'Saree' }}</div>
+          <h3>{{ product.name }}</h3>
+          <div class="product-price">
+            <span class="price-current">₹{{ "{:,.0f}".format(product.price) }}</span>
+            {% if product.original_price and product.original_price > product.price %}
+              <span class="price-original">₹{{ "{:,.0f}".format(product.original_price) }}</span>
+              <span style="background:#E8F5E9;color:#2E7D32;font-family:var(--font-sans);font-size:10px;padding:2px 6px;border-radius:2px;font-weight:700">
+                {{ ((1 - product.price/product.original_price)*100)|int }}% off
+              </span>
+            {% endif %}
+          </div>
+          {% if product.fabric %}<span class="product-fabric-tag">{{ product.fabric }}</span>{% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    <div style="text-align:center;margin-top:40px">
+      <a href="{{ url_for('all_products') }}" class="btn btn-outline">Continue Shopping <i class="fas fa-arrow-right"></i></a>
+    </div>
+    {% else %}
+    <div class="empty-wl">
+      <i class="fas fa-heart"></i>
+      <h3>Your wishlist is empty</h3>
+      <p style="color:var(--warm-gray);margin-bottom:28px">Save sarees you love by clicking the heart icon on any product.</p>
+      <a href="{{ url_for('all_products') }}" class="btn btn-gold"><i class="fas fa-shopping-bag"></i> Explore Sarees</a>
+    </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function removeWishlist(id) {
+  fetch('/wishlist/toggle/' + id, {method: 'POST'})
+  .then(r => r.json())
+  .then(d => {
+    const card = document.getElementById('wl-card-' + id);
+    if (card) { card.style.opacity = '0'; card.style.transform = 'scale(0.9)'; card.style.transition = 'all 0.3s'; setTimeout(() => card.remove(), 300); }
+    // Update wishlist count in nav
+    const badge = document.querySelector('.nav-actions a[href*="wishlist"] .cart-badge');
+    if (d.count === 0 && badge) badge.remove();
+    else if (badge) badge.textContent = d.count;
+  });
+}
+</script>
+{% endblock %}

@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}Order Confirmed! – Vivah{% endblock %}
+{% block extra_head %}
+<style>
+@keyframes popIn{0%{transform:scale(0);opacity:0}60%{transform:scale(1.2)}100%{transform:scale(1);opacity:1}}
+@keyframes fadeUp{from{transform:translateY(30px);opacity:0}to{transform:translateY(0);opacity:1}}
+.confetti-dot{position:fixed;width:10px;height:10px;border-radius:50%;animation:fall linear forwards}
+@keyframes fall{0%{transform:translateY(-20px) rotate(0deg);opacity:1}100%{transform:translateY(110vh) rotate(720deg);opacity:0}}
+</style>
+{% endblock %}
+{% block content %}
+<section style="min-height:85vh;display:flex;align-items:center;justify-content:center;padding:60px 20px;background:linear-gradient(135deg,var(--ivory) 0%,rgba(201,168,76,0.08) 100%);">
+  <div style="text-align:center;max-width:600px;animation:fadeUp 0.6s ease;">
+    <div style="width:100px;height:100px;background:linear-gradient(135deg,var(--gold-dark),var(--gold));border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 28px;animation:popIn 0.7s ease 0.2s both;box-shadow:0 8px 30px rgba(201,168,76,0.4);">
+      <i class="fas fa-check" style="font-size:44px;color:white;"></i>
+    </div>
+
+    <div class="section-label">Vivah Sarees</div>
+    <h1 style="font-family:var(--font-heading);font-size:clamp(32px,5vw,56px);color:var(--crimson);letter-spacing:4px;margin:12px 0;">Order Confirmed!</h1>
+    <div class="section-divider"></div>
+    <p style="font-size:18px;font-style:italic;color:var(--warm-gray);margin-bottom:32px;line-height:1.8;">
+      Thank you{% if user %}, {{ user.name.split()[0] }}{% endif %}! Your saree order has been placed successfully.<br/>
+      We will start processing it right away. ✦
+    </p>
+
+    <div style="background:white;padding:28px 36px;box-shadow:var(--shadow);margin-bottom:32px;border-top:3px solid var(--gold);">
+      <div style="font-family:var(--font-sans);font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--gold-dark);margin-bottom:8px;">Your Order Number</div>
+      <div style="font-family:var(--font-heading);font-size:32px;color:var(--crimson);letter-spacing:4px;margin-bottom:16px;">{{ order.order_number }}</div>
+      <div style="display:flex;justify-content:center;gap:30px;flex-wrap:wrap;font-family:var(--font-sans);font-size:12px;color:var(--warm-gray);">
+        <div><i class="fas fa-rupee-sign" style="color:var(--gold);margin-right:6px;"></i>₹{{ "{:,.0f}".format(order.total) }}</div>
+        <div><i class="fas fa-credit-card" style="color:var(--gold);margin-right:6px;"></i>{{ order.payment_method }}</div>
+        <div><i class="fas fa-calendar" style="color:var(--gold);margin-right:6px;"></i>{{ order.created_at.strftime('%d %b %Y') }}</div>
+      </div>
+    </div>
+
+    <!-- Steps -->
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:36px;">
+      {% for icon,step,active in [('fas fa-check-circle','Confirmed',True),('fas fa-cog','Processing',False),('fas fa-truck','Shipped',False),('fas fa-home','Delivered',False)] %}
+      <div style="text-align:center;">
+        <div style="width:44px;height:44px;border-radius:50%;background:{{ 'var(--gold)' if active else 'var(--ivory-dark)' }};display:flex;align-items:center;justify-content:center;margin:0 auto 8px;">
+          <i class="{{ icon }}" style="color:{{ 'white' if active else 'var(--warm-gray)' }};font-size:18px;"></i>
+        </div>
+        <div style="font-family:var(--font-sans);font-size:10px;letter-spacing:1px;text-transform:uppercase;color:{{ 'var(--crimson)' if active else 'var(--warm-gray)' }};font-weight:{{ '700' if active else '400' }};">{{ step }}</div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap;">
+      <a href="{{ url_for('track_order') }}?order_number={{ order.order_number }}" class="btn btn-gold"><i class="fas fa-map-marker-alt"></i> Track Order</a>
+      <a href="{{ url_for('profile') }}#orders" class="btn btn-outline"><i class="fas fa-box"></i> My Orders</a>
+      <a href="{{ url_for('collections') }}" class="btn btn-crimson"><i class="fas fa-shopping-bag"></i> Continue Shopping</a>
+    </div>
+  </div>
+</section>
+{% endblock %}
+{% block extra_js %}
+<script>
+// Confetti animation
+const colors=['#C9A84C','#8B1A1A','#E8CC7A','#FAF6EE','#9A7A2E'];
+for(let i=0;i<60;i++){
+  const d=document.createElement('div');
+  d.className='confetti-dot';
+  d.style.cssText=`left:${Math.random()*100}%;top:-20px;background:${colors[Math.floor(Math.random()*colors.length)]};width:${6+Math.random()*10}px;height:${6+Math.random()*10}px;border-radius:${Math.random()>0.5?'50%':'0'};animation-duration:${2+Math.random()*3}s;animation-delay:${Math.random()*2}s;`;
+  document.body.appendChild(d);
+  setTimeout(()=>d.remove(),(5+Math.random()*3)*1000);
+}
+</script>
+{% endblock %}

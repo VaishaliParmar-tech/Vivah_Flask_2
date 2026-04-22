@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+{% block extra_head %}<style>@media(max-width:700px){.checkout-layout,.shop-layout,[style*="grid-template-columns:1fr 1fr"]{grid-template-columns:1fr!important}}</style>{% endblock %}
+{% block title %}{% if query %}Search: {{ query }}{% else %}Search{% endif %} – Vivah{% endblock %}
+{% block content %}
+<div style="background:var(--ivory-dark);padding:46px 40px;text-align:center;border-bottom:1px solid rgba(201,168,76,0.2);">
+  <div class="section-label">Search Vivah</div>
+  <h1 style="font-family:var(--font-heading);font-size:clamp(24px,4vw,44px);color:var(--crimson);letter-spacing:3px;">
+    {% if query %}"{{ query }}"{% else %}Search Sarees{% endif %}
+  </h1>
+  <div class="section-divider"></div>
+  <form action="{{ url_for('search') }}" method="GET" style="display:flex;justify-content:center;margin-top:20px;">
+    <div style="display:flex;border:2px solid var(--gold);overflow:hidden;max-width:520px;width:100%;">
+      <input type="text" name="q" value="{{ query }}" placeholder="Search by name, fabric, color, occasion..." autofocus
+        style="flex:1;padding:13px 18px;border:none;background:white;font-family:var(--font-body);font-size:15px;outline:none;" />
+      <button type="submit" class="btn btn-gold" style="border-radius:0;padding:13px 22px;"><i class="fas fa-search"></i></button>
+    </div>
+  </form>
+</div>
+
+<section class="section">
+  <div class="container">
+    {% if query %}
+      {% if products %}
+        <p style="font-family:var(--font-sans);font-size:13px;color:var(--warm-gray);margin-bottom:28px;letter-spacing:1px;">
+          <i class="fas fa-check-circle" style="color:green;margin-right:6px;"></i>
+          {{ products|length }} result{{ 's' if products|length != 1 }} found for "<strong>{{ query }}</strong>"
+        </p>
+        <div class="products-grid">
+          {% for product in products %}
+          <div class="product-card">
+            <div class="product-img-wrap">
+              {% if product.image %}
+                <img src="{{ url_for('static', filename='images/products/' + product.image) }}" alt="{{ product.name }}" />
+              {% else %}
+                <div class="product-img-placeholder"><i class="fas fa-image"></i><span>{{ product.fabric or 'Saree' }}</span></div>
+              {% endif %}
+              <div class="product-badges">
+                {% if product.is_new_arrival %}<span class="badge badge-new">New</span>{% endif %}
+                {% if product.is_wedding %}<span class="badge badge-wedding">Wedding</span>{% endif %}
+              </div>
+              <div class="product-actions-hover">
+                <button onclick="addToCart({{ product.id }})"><i class="fas fa-shopping-bag"></i> Add</button>
+                <button onclick="window.location='/product/{{ product.id }}'"><i class="fas fa-eye"></i> View</button>
+              </div>
+            </div>
+            <div class="product-info">
+              <div class="category-tag">{{ product.category.name if product.category else 'Saree' }}</div>
+              <h3>{{ product.name }}</h3>
+              <div class="product-price">
+                <span class="price-current">₹{{ "{:,.0f}".format(product.price) }}</span>
+                {% if product.original_price and product.original_price > product.price %}<span class="price-original">₹{{ "{:,.0f}".format(product.original_price) }}</span>{% endif %}
+              </div>
+              {% if product.fabric %}<span class="product-fabric-tag">{{ product.fabric }}</span>{% endif %}
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div style="text-align:center;padding:80px 20px;">
+          <i class="fas fa-search" style="font-size:64px;color:var(--gold);display:block;margin-bottom:20px;"></i>
+          <h3 style="font-family:var(--font-heading);font-size:28px;color:var(--charcoal);margin-bottom:12px;">No results for "{{ query }}"</h3>
+          <p style="color:var(--warm-gray);margin-bottom:30px;">Try different keywords — fabric, color, occasion, or category name.</p>
+          <a href="{{ url_for('collections') }}" class="btn btn-gold">Browse All Collections</a>
+        </div>
+        <!-- Show popular searches -->
+        <div style="margin-top:40px;text-align:center;">
+          <div class="section-label">Try Searching For</div>
+          <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:14px;">
+            {% for tag in ['Silk','Wedding','Red','Patola','Bandhni','Gharchola','Leheriya','Kanjivaram','Georgette','Gold'] %}
+            <a href="{{ url_for('search') }}?q={{ tag }}"
+               style="padding:8px 18px;border:1.5px solid var(--gold);font-family:var(--font-sans);font-size:11px;letter-spacing:1px;color:var(--gold-dark);transition:var(--transition);"
+               onmouseover="this.style.background='var(--gold)';this.style.color='var(--charcoal)'"
+               onmouseout="this.style.background='';this.style.color='var(--gold-dark)'">{{ tag }}</a>
+            {% endfor %}
+          </div>
+        </div>
+      {% endif %}
+    {% else %}
+      <!-- No query: show tag cloud -->
+      <div style="text-align:center;padding:50px 20px;">
+        <p style="color:var(--warm-gray);font-size:17px;font-style:italic;margin-bottom:30px;">Type a keyword above to find sarees by name, fabric, color, or occasion.</p>
+        <div class="section-label">Popular Searches</div>
+        <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:16px;">
+          {% for tag in ['Silk','Wedding Saree','Red Saree','Patola','Bandhni','Gharchola','Leheriya','Kanjivaram','Bridal','Gold','Georgette','Designer'] %}
+          <a href="{{ url_for('search') }}?q={{ tag }}"
+             style="padding:9px 20px;border:1.5px solid var(--gold);font-family:var(--font-sans);font-size:11px;letter-spacing:1px;color:var(--gold-dark);transition:var(--transition);"
+             onmouseover="this.style.background='var(--gold)';this.style.color='var(--charcoal)'"
+             onmouseout="this.style.background='';this.style.color='var(--gold-dark)'">{{ tag }}</a>
+          {% endfor %}
+        </div>
+        <!-- Browse categories -->
+        <div style="margin-top:48px;">
+          <div class="section-label">Browse by Category</div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px;margin-top:20px;max-width:900px;margin-left:auto;margin-right:auto;">
+            {% if categories %}{% for cat in categories %}
+            <a href="{{ url_for('collection_detail', slug=cat.slug) }}"
+               style="background:white;padding:20px;text-align:center;box-shadow:0 2px 10px rgba(0,0,0,0.06);font-family:var(--font-heading);font-size:15px;color:var(--charcoal);letter-spacing:1px;transition:var(--transition);"
+               onmouseover="this.style.color='var(--crimson)';this.style.boxShadow='0 4px 20px rgba(0,0,0,0.12)'"
+               onmouseout="this.style.color='var(--charcoal)';this.style.boxShadow='0 2px 10px rgba(0,0,0,0.06)'">
+              {{ cat.name }}
+            </a>
+            {% endfor %}{% endif %}
+          </div>
+        </div>
+      </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

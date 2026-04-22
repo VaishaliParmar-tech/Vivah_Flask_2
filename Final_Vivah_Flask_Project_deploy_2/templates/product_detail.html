@@ -1,0 +1,139 @@
+{% block extra_head %}
+<style>
+@media(max-width:700px){
+  .section .container > div[style*="grid-template-columns:1fr 1fr"]{display:block!important}
+  .section .container > div > div:first-child{margin-bottom:20px}
+  .section .container > div > div[style*="padding-top:20px"]{padding-top:0!important}
+  .section .container > div > div[style*="gap:14px"]{flex-wrap:wrap}
+}
+</style>
+{% endblock %}
+{% extends "base.html" %}
+{% block title %}{{ product.name }} – Vivah{% endblock %}
+{% block content %}
+<section class="section">
+  <div class="container">
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:60px; align-items:start;">
+      <!-- Image -->
+      <div>
+        <div style="aspect-ratio:3/4; background:var(--ivory-dark); position:relative; overflow:hidden;">
+          {% if product.image %}
+            <img id="main-product-image" src="{{ url_for('static', filename='images/products/' + product.image) }}" alt="{{ product.name }}" style="width:100%;height:100%;object-fit:cover;" />
+          {% else %}
+            <div class="product-img-placeholder" style="height:100%"><i class="fas fa-image" style="font-size:64px;"></i><span>Product Image</span></div>
+          {% endif %}
+        </div>
+      </div>
+      <!-- Info -->
+      <div style="padding-top:20px;">
+        <div class="section-label" style="text-align:left;">{{ product.category.name if product.category else 'Saree' }}</div>
+        <h1 style="font-family:var(--font-heading); font-size:clamp(24px,3vw,38px); color:var(--charcoal); letter-spacing:2px; margin-bottom:16px;">{{ product.name }}</h1>
+        <div style="display:flex; align-items:center; gap:16px; margin-bottom:24px;">
+          <span style="font-size:32px; color:var(--crimson); font-weight:600;">₹{{ "{:,.0f}".format(product.price) }}</span>
+          {% if product.original_price and product.original_price > product.price %}<span style="font-size:20px; color:var(--warm-gray); text-decoration:line-through;">₹{{ "{:,.0f}".format(product.original_price) }}</span>{% endif %}
+        </div>
+        {% if product.description %}<p style="font-size:16px; color:var(--warm-gray); line-height:1.8; margin-bottom:24px; font-style:italic;">{{ product.description }}</p>{% endif %}
+        <div style="display:flex; flex-wrap:wrap; gap:12px; margin-bottom:28px;">
+          {% if product.fabric %}<span class="product-fabric-tag" style="font-size:13px; padding:6px 14px;">Fabric: {{ product.fabric }}</span>{% endif %}
+          {% if product.color %}<span class="product-fabric-tag" style="font-size:13px; padding:6px 14px;">Color: {{ product.color }}</span>{% endif %}
+          {% if product.occasion %}<span class="product-fabric-tag" style="font-size:13px; padding:6px 14px;">{{ product.occasion }}</span>{% endif %}
+        </div>
+        
+        {% if product.product_colors %}
+        <div style="margin-bottom: 24px;">
+          <h4 style="font-family:var(--font-heading); font-size:14px; color:var(--charcoal); margin-bottom:12px; letter-spacing:1px; text-transform:uppercase;">Select Color: <span id="selected-color-label" style="color:var(--crimson);">{{ product.color or 'Default' }}</span></h4>
+          <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <!-- Main Color -->
+            <button class="color-swatch active" onclick="selectColor('{{ product.color or 'Default' }}', '{{ product.image }}', this)" style="width:40px; height:40px; border-radius:50%; border:2px solid var(--gold); padding:2px; cursor:pointer; background:white; overflow:hidden;">
+              <img src="{{ url_for('static', filename='images/products/' + product.image) }}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;" />
+            </button>
+            <!-- Variant Colors -->
+            {% for pc in product.product_colors %}
+            <button class="color-swatch" onclick="selectColor('{{ pc.color_name }}', '{{ pc.image }}', this)" style="width:40px; height:40px; border-radius:50%; border:2px solid transparent; padding:2px; cursor:pointer; background:white; overflow:hidden;">
+              <img src="{{ url_for('static', filename='images/products/' + pc.image) }}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;" />
+            </button>
+            {% endfor %}
+          </div>
+        </div>
+        <script>window.selectedColor = "{{ product.color or 'Default' }}";</script>
+        {% endif %}
+        {% if product.stock > 0 %}<p style="color:green; font-family:var(--font-sans); font-size:12px; letter-spacing:2px; margin-bottom:20px;"><i class="fas fa-check-circle"></i> In Stock ({{ product.stock }} available)</p>
+        {% else %}<p style="color:var(--crimson); font-family:var(--font-sans); font-size:12px; letter-spacing:2px; margin-bottom:20px;"><i class="fas fa-times-circle"></i> Out of Stock</p>{% endif %}
+        <div style="display:flex; gap:14px; flex-wrap:wrap;">
+          <button onclick="addToCart({{ product.id }})" class="btn btn-crimson"><i class="fas fa-shopping-bag"></i> Add to Bag</button>
+          <button onclick="buyNow({{ product.id }})" class="btn btn-gold" style="background:linear-gradient(135deg,var(--gold-dark),var(--gold));color:var(--charcoal);font-weight:700"><i class="fas fa-bolt"></i> Buy Now</button>
+          <button onclick="toggleWishlist({{ product.id }})" class="btn btn-outline" id="wl-main-{{ product.id }}" style="{{ 'background:var(--crimson);color:var(--gold-light);border-color:var(--crimson)' if in_wishlist else '' }}">
+            <i class="fas fa-heart"></i> {{ 'In Wishlist' if in_wishlist else 'Add to Wishlist' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    {% if related %}
+    <div style="margin-top:80px;">
+      <div class="section-header"><div class="section-label">You May Also Like</div><h2 class="section-title">Related Sarees</h2><div class="section-divider"></div></div>
+      <div class="products-grid">
+        {% for p in related %}
+        <div class="product-card">
+          <div class="product-img-wrap">
+            {% if p.image %}<img src="{{ url_for('static', filename='images/products/' + p.image) }}" alt="{{ p.name }}" />
+            {% else %}<div class="product-img-placeholder"><i class="fas fa-image"></i><span>Image</span></div>{% endif %}
+            <div class="product-actions-hover"><button onclick="addToCart({{ p.id }})">Add to Bag</button><button onclick="window.location='/product/{{ p.id }}'">View</button></div>
+          </div>
+          <div class="product-info"><h3>{{ p.name }}</h3><div class="product-price"><span class="price-current">₹{{ "{:,.0f}".format(p.price) }}</span></div></div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function toggleWishlist(id) {
+  fetch('/wishlist/toggle/' + id, {method:'POST'})
+  .then(r=>r.json())
+  .then(d=>{
+    const btn = document.getElementById('wl-main-' + id);
+    if (btn) {
+      btn.innerHTML = '<i class="fas fa-heart"></i> ' + (d.in_wishlist ? 'In Wishlist' : 'Add to Wishlist');
+      btn.style.background = d.in_wishlist ? 'var(--crimson)' : '';
+      btn.style.color = d.in_wishlist ? 'var(--gold-light)' : '';
+      btn.style.borderColor = d.in_wishlist ? 'var(--crimson)' : '';
+    }
+    const c = document.getElementById('flashContainer');
+    const m = document.createElement('div');
+    m.className = 'flash-msg ' + (d.in_wishlist ? 'success' : '');
+    m.textContent = d.message; c.appendChild(m);
+    setTimeout(()=>m.remove(), 3000);
+  });
+}
+
+function buyNow(id) {
+  let colorParam = window.selectedColor ? '?color=' + encodeURIComponent(window.selectedColor) : '';
+  fetch('/cart/add/' + id + colorParam, {method:'POST'})
+  .then(r=>r.json())
+  .then(d=>{
+    if(d.success || d.message) {
+      window.location.href = '/checkout';
+    }
+  })
+  .catch(()=>{ window.location.href = '/checkout'; });
+}
+
+function selectColor(colorName, imageFile, btnEl) {
+  window.selectedColor = colorName;
+  document.getElementById('main-product-image').src = '/static/images/products/' + imageFile;
+  document.getElementById('selected-color-label').innerText = colorName;
+  
+  document.querySelectorAll('.color-swatch').forEach(el => {
+    el.classList.remove('active');
+    el.style.borderColor = 'transparent';
+  });
+  btnEl.classList.add('active');
+  btnEl.style.borderColor = 'var(--gold)';
+}
+</script>
+{% endblock %}

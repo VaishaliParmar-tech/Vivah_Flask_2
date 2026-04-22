@@ -1,0 +1,1107 @@
+{% extends "base.html" %}
+
+{% block extra_head %}
+<style>
+/* ─── VIDEO SPLASH ──────────────────────────────────────────── */
+#splashScreen {
+  position: fixed; inset: 0; z-index: 9999;
+  background: var(--charcoal);
+  display: flex; align-items: center; justify-content: center;
+  transition: opacity 0.8s ease;
+}
+#splashScreen.fade-out { opacity: 0; pointer-events: none; }
+#splashVideo { width: 100%; height: 100%; object-fit: cover; }
+.splash-skip {
+  position: absolute; bottom: 36px; right: 36px;
+  font-family: var(--font-sans); font-size: 11px; letter-spacing: 3px;
+  text-transform: uppercase; color: rgba(255,255,255,0.7);
+  cursor: pointer; padding: 10px 20px;
+  border: 1px solid rgba(255,255,255,0.3);
+  transition: var(--transition);
+}
+.splash-skip:hover { background: rgba(255,255,255,0.15); color: white; }
+.splash-logo {
+  position: absolute; top: 36px; left: 50%; transform: translateX(-50%);
+  font-family: var(--font-heading); font-size: 36px; letter-spacing: 8px;
+  color: var(--gold-light); text-shadow: 0 2px 20px rgba(0,0,0,0.5);
+}
+
+  /* ─── Hero ──────────────────────────────────────────────────── */
+  .hero {
+    position: relative;
+    height: 100vh;
+    min-height: 650px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .hero-video-bg {
+    position: absolute;
+    inset: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+    z-index: 0;
+  }
+  .hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      135deg,
+      rgba(28,28,28,0.72) 0%,
+      rgba(139,26,26,0.45) 40%,
+      rgba(28,28,28,0.65) 100%
+    );
+    z-index: 1;
+  }
+  .hero-slides {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+  }
+  .hero-slide {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 1.2s ease;
+  }
+  .hero-slide.active { opacity: 1; }
+  .hero-slide img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+  }
+  .hero-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    color: white;
+    padding: 0 20px;
+    max-width: 800px;
+  }
+  .hero-label {
+    display: inline-block;
+    font-family: var(--font-sans);
+    font-size: 11px;
+    letter-spacing: 6px;
+    text-transform: uppercase;
+    color: var(--gold-light);
+    margin-bottom: 20px;
+    padding: 6px 20px;
+    border: 1px solid rgba(201,168,76,0.4);
+  }
+  .hero-title {
+    font-family: var(--font-heading);
+    font-size: clamp(42px, 8vw, 90px);
+    line-height: 1.05;
+    letter-spacing: 6px;
+    margin-bottom: 20px;
+    text-shadow: 0 2px 30px rgba(0,0,0,0.4);
+  }
+  .hero-title span { color: var(--gold-light); }
+  .hero-subtitle {
+    font-family: var(--font-body);
+    font-size: clamp(16px, 2vw, 22px);
+    font-style: italic;
+    color: rgba(255,255,255,0.85);
+    margin-bottom: 40px;
+    letter-spacing: 1px;
+  }
+  .hero-ctas {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .hero-scroll {
+    position: absolute;
+    bottom: 30px; left: 50%;
+    transform: translateX(-50%);
+    z-index: 2;
+    color: var(--gold-light);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-sans);
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    animation: bounce 2s infinite;
+  }
+  @keyframes bounce {
+    0%, 100% { transform: translateX(-50%) translateY(0); }
+    50% { transform: translateX(-50%) translateY(8px); }
+  }
+  .hero-dots {
+    position: absolute;
+    bottom: 80px; left: 50%;
+    transform: translateX(-50%);
+    z-index: 2;
+    display: flex;
+    gap: 10px;
+  }
+  .hero-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.4);
+    cursor: pointer;
+    transition: var(--transition);
+  }
+  .hero-dot.active { background: var(--gold); transform: scale(1.3); }
+
+  /* ─── Feature Strip ──────────────────────────────────────────── */
+  .feature-strip {
+    background: var(--crimson);
+    padding: 22px 40px;
+  }
+  .feature-strip-inner {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+  }
+  .feature-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    color: rgba(255,255,255,0.9);
+    justify-content: center;
+  }
+  .feature-item i {
+    font-size: 22px;
+    color: var(--gold-light);
+  }
+  .feature-item-text .title {
+    font-family: var(--font-sans);
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--gold-light);
+    font-weight: 700;
+  }
+  .feature-item-text .sub {
+    font-size: 12px;
+    color: rgba(255,255,255,0.7);
+  }
+
+  /* ─── Brand Video Section ────────────────────────────────────── */
+  .brand-video-section {
+    padding: 80px 40px;
+    background: var(--charcoal);
+    text-align: center;
+  }
+  .brand-video-wrap {
+    max-width: 900px;
+    margin: 40px auto 0;
+    position: relative;
+    border: 3px solid var(--gold-dark);
+    box-shadow: 0 0 60px rgba(201,168,76,0.2);
+  }
+  .brand-video-wrap video {
+    width: 100%;
+    display: block;
+  }
+
+  /* ─── Categories Grid ────────────────────────────────────────── */
+  .categories-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(2, 240px);
+    gap: 12px;
+  }
+  .cat-card {
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    background: var(--ivory-dark);
+  }
+  .cat-card:first-child {
+    grid-row: span 2;
+  }
+  .cat-card img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s ease;
+  }
+  .cat-img-placeholder {
+    width: 100%; height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 56px;
+    color: var(--gold);
+  }
+  .cat-card:hover img { transform: scale(1.07); }
+  .cat-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(28,28,28,0.8) 0%, transparent 60%);
+    display: flex;
+    align-items: flex-end;
+    padding: 24px;
+    transition: var(--transition);
+  }
+  .cat-card:hover .cat-overlay { background: linear-gradient(to top, rgba(139,26,26,0.8) 0%, transparent 60%); }
+  .cat-name {
+    font-family: var(--font-heading);
+    font-size: 22px;
+    color: white;
+    letter-spacing: 2px;
+  }
+  .cat-count {
+    font-family: var(--font-sans);
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--gold-light);
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+
+  /* ─── Banner CTA ─────────────────────────────────────────────── */
+  .banner-cta {
+    position: relative;
+    overflow: hidden;
+    min-height: 420px;
+    display: flex;
+    align-items: center;
+  }
+  .banner-cta-bg {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, var(--charcoal) 0%, var(--crimson) 50%, var(--charcoal) 100%);
+  }
+  .banner-cta-img {
+    position: absolute;
+    right: 0; top: 0; bottom: 0;
+    width: 50%;
+    object-fit: cover;
+    opacity: 0.3;
+  }
+  .banner-cta-content {
+    position: relative;
+    z-index: 1;
+    padding: 60px 80px;
+    color: white;
+    max-width: 600px;
+  }
+  .banner-cta-content .label {
+    font-family: var(--font-sans);
+    font-size: 11px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--gold-light);
+    margin-bottom: 16px;
+  }
+  .banner-cta-content h2 {
+    font-family: var(--font-heading);
+    font-size: clamp(28px, 4vw, 48px);
+    letter-spacing: 3px;
+    line-height: 1.2;
+    margin-bottom: 20px;
+  }
+  .banner-cta-content p {
+    font-size: 16px;
+    font-style: italic;
+    color: rgba(255,255,255,0.8);
+    margin-bottom: 32px;
+  }
+
+  /* ─── Testimonials ───────────────────────────────────────────── */
+  .testimonials-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+  }
+  .testimonial-card {
+    background: white;
+    padding: 36px 30px;
+    position: relative;
+    box-shadow: 0 2px 20px rgba(0,0,0,0.06);
+  }
+  .testimonial-card::before {
+    content: '"';
+    position: absolute;
+    top: 20px; left: 24px;
+    font-family: var(--font-heading);
+    font-size: 72px;
+    color: var(--gold);
+    opacity: 0.4;
+    line-height: 1;
+  }
+  .testimonial-text {
+    font-style: italic;
+    font-size: 15px;
+    color: var(--warm-gray);
+    line-height: 1.8;
+    margin-bottom: 24px;
+    padding-top: 30px;
+  }
+  .testimonial-author {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .author-avatar {
+    width: 46px; height: 46px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--crimson), var(--gold));
+    display: flex; align-items: center; justify-content: center;
+    color: white;
+    font-family: var(--font-heading);
+    font-size: 18px;
+    font-weight: 700;
+  }
+  .author-name {
+    font-family: var(--font-sans);
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--charcoal);
+    letter-spacing: 1px;
+  }
+  .author-city {
+    font-size: 12px;
+    color: var(--warm-gray);
+  }
+  .stars { color: var(--gold); font-size: 12px; margin-bottom: 4px; }
+
+  /* ─── Stats Bar ──────────────────────────────────────────────── */
+  .stats-bar {
+    background: linear-gradient(135deg, var(--crimson), var(--charcoal));
+    padding: 60px 40px;
+    text-align: center;
+    color: white;
+  }
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+  .stat-item .num {
+    font-family: var(--font-heading);
+    font-size: 52px;
+    color: var(--gold-light);
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+  .stat-item .label {
+    font-family: var(--font-sans);
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.7);
+  }
+
+  @media (max-width: 900px) {
+    .feature-strip-inner { grid-template-columns: repeat(2, 1fr); }
+    .categories-grid { grid-template-columns: repeat(2, 1fr); grid-template-rows: unset; }
+    .categories-grid .cat-card:first-child { grid-row: span 1; }
+    .testimonials-grid { grid-template-columns: 1fr; }
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .banner-cta-content { padding: 40px 20px; }
+  }
+  @media (max-width: 600px) {
+    .feature-strip-inner { grid-template-columns: 1fr; }
+    .categories-grid { grid-template-columns: 1fr; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- ─── INTRO VIDEO SPLASH ─────────────────────────────────────── -->
+<div id="splashScreen">
+  <div class="splash-logo">VIVAH</div>
+  <video id="splashVideo" autoplay muted playsinline>
+    <source src="{{ url_for('static', filename='videos/hero_video2.mp4') }}" type="video/mp4" />
+  </video>
+  <div class="splash-skip" onclick="dismissSplash()">Skip Intro &nbsp;›</div>
+</div>
+
+<!-- ─── HERO ──────────────────────────────────────────────────────── -->
+<section class="hero">
+  <!-- Video Background -->
+  <video class="hero-video-bg" autoplay muted loop playsinline>
+    <source src="{{ url_for('static', filename='videos/hero_video1.mp4') }}" type="video/mp4" />
+    <source src="{{ url_for('static', filename='videos/hero_video2.mp4') }}" type="video/mp4" />
+  </video>
+
+  <!-- Fallback image slides -->
+  <div class="hero-slides" id="heroSlides">
+    <div class="hero-slide active">
+      <img src="{{ url_for('static', filename='images/hero/hero_banner1.jpg') }}" alt="Vivah Sarees" />
+    </div>
+    <div class="hero-slide">
+      <img src="{{ url_for('static', filename='images/hero/hero_banner2.jpg') }}" alt="Vivah Sarees" />
+    </div>
+    <div class="hero-slide">
+      <img src="{{ url_for('static', filename='images/hero/hero_banner3.jpg') }}" alt="Vivah Sarees" />
+    </div>
+    <div class="hero-slide">
+      <img src="{{ url_for('static', filename='images/hero/hero_banner4.jpg') }}" alt="Vivah Sarees" />
+    </div>
+    <div class="hero-slide">
+      <img src="{{ url_for('static', filename='images/hero/hero_banner5.jpg') }}" alt="Vivah Sarees" />
+    </div>
+  </div>
+
+  <div class="hero-overlay"></div>
+
+  <div class="hero-content">
+    <div class="hero-label">The Royal Saree House</div>
+    <h1 class="hero-title">
+      VIVAH<br /><span>Sarees</span>
+    </h1>
+    <p class="hero-subtitle">Where tradition meets timeless elegance — crafted for the modern Indian woman</p>
+    <div class="hero-ctas">
+      <a href="{{ url_for('collections') }}" class="btn btn-gold">Explore Collection</a>
+      <a href="{{ url_for('wedding_collection') }}" class="btn btn-white">Wedding Sarees</a>
+    </div>
+  </div>
+
+  <div class="hero-dots" id="heroDots">
+    <div class="hero-dot active" onclick="goToSlide(0)"></div>
+    <div class="hero-dot" onclick="goToSlide(1)"></div>
+    <div class="hero-dot" onclick="goToSlide(2)"></div>
+    <div class="hero-dot" onclick="goToSlide(3)"></div>
+    <div class="hero-dot" onclick="goToSlide(4)"></div>
+  </div>
+
+  <div class="hero-scroll">
+    <i class="fas fa-chevron-down"></i>
+    Scroll
+  </div>
+</section>
+
+<!-- ─── FEATURE STRIP ─────────────────────────────────────────────── -->
+<div class="feature-strip">
+  <div class="feature-strip-inner">
+    <div class="feature-item">
+      <i class="fas fa-truck"></i>
+      <div class="feature-item-text">
+        <div class="title">Free Shipping</div>
+        <div class="sub">On orders above ₹2999</div>
+      </div>
+    </div>
+    <div class="feature-item">
+      <i class="fas fa-undo-alt"></i>
+      <div class="feature-item-text">
+        <div class="title">Easy Returns</div>
+        <div class="sub">7-day return policy</div>
+      </div>
+    </div>
+    <div class="feature-item">
+      <i class="fas fa-certificate"></i>
+      <div class="feature-item-text">
+        <div class="title">100% Authentic</div>
+        <div class="sub">Handpicked craftsmanship</div>
+      </div>
+    </div>
+    <div class="feature-item">
+      <i class="fas fa-headset"></i>
+      <div class="feature-item-text">
+        <div class="title">Expert Support</div>
+        <div class="sub">Mon–Sat, 10am–7pm</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── CATEGORIES ─────────────────────────────────────────────────── -->
+<section class="section">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-label">Browse by Category</div>
+      <h2 class="section-title">Our Collections</h2>
+      <div class="section-divider"></div>
+      <p class="section-desc">From classic silks to contemporary designer weaves — discover every style</p>
+    </div>
+
+    <div class="categories-grid">
+      <a href="{{ url_for('wedding_collection') }}" class="cat-card">
+        <img src="{{ url_for('static', filename='images/sarees/wedding.jpg') }}" alt="Wedding Sarees" onerror="this.parentElement.innerHTML='<div class=cat-img-placeholder>🌹</div>'+this.parentElement.querySelector('.cat-overlay').outerHTML" />
+        <div class="cat-overlay">
+          <div>
+            <div class="cat-name">Wedding Collection</div>
+            <div class="cat-count">Bridal & Festive Sarees</div>
+          </div>
+        </div>
+      </a>
+      <a href="{{ url_for('collections') }}" class="cat-card">
+        <img src="{{ url_for('static', filename='images/sarees/Silk.jpeg') }}" alt="Silk Sarees" onerror="this.style.display='none'" />
+        <div class="cat-img-placeholder" style="position:absolute;inset:0;">🥻</div>
+        <div class="cat-overlay">
+          <div>
+            <div class="cat-name">Silk Sarees</div>
+            <div class="cat-count">Pure & Blended Silks</div>
+          </div>
+        </div>
+      </a>
+      <a href="{{ url_for('collections') }}" class="cat-card">
+        <img src="{{ url_for('static', filename='images/sarees/patola.jpg') }}" alt="Patola" />
+        <div class="cat-overlay">
+          <div>
+            <div class="cat-name">Patola</div>
+            <div class="cat-count">Rare double-ikat weaves from Patan</div>
+          </div>
+        </div>
+      </a>
+      <a href="{{ url_for('collections') }}" class="cat-card">
+        <img src="{{ url_for('static', filename='images/sarees/designer_1.jpg') }}" alt="Designer" />
+        <div class="cat-overlay">
+          <div>
+            <div class="cat-name">Designer Sarees</div>
+            <div class="cat-count">Contemporary Elegance</div>
+          </div>
+        </div>
+      </a>
+      <a href="{{ url_for('new_arrivals') }}" class="cat-card">
+        <img src="{{ url_for('static', filename='images/sarees/New.jpg') }}" alt="New Arrivals" />
+        <div class="cat-overlay">
+          <div>
+            <div class="cat-name">New Arrivals</div>
+            <div class="cat-count">Latest 2026 Collection</div>
+          </div>
+        </div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ─── FEATURED PRODUCTS ──────────────────────────────────────────── -->
+<section class="section section-alt">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-label">Handpicked for You</div>
+      <h2 class="section-title">Featured Sarees</h2>
+      <div class="section-divider"></div>
+    </div>
+
+    {% if featured %}
+      <div class="products-grid">
+        {% for product in featured %}
+        <div class="product-card">
+          <div class="product-img-wrap">
+            {% if product.image %}
+              <img src="{{ url_for('static', filename='images/products/' + product.image) }}" alt="{{ product.name }}" />
+            {% else %}
+              <div class="product-img-placeholder">
+                <i class="fas fa-image"></i>
+                <span>Add your image</span>
+              </div>
+            {% endif %}
+            <div class="product-badges">
+              {% if product.is_new_arrival %}<span class="badge badge-new">New</span>{% endif %}
+              {% if product.is_wedding %}<span class="badge badge-wedding">Wedding</span>{% endif %}
+              {% if product.original_price and product.original_price > product.price %}<span class="badge badge-sale">Sale</span>{% endif %}
+            </div>
+            <div class="product-actions-hover">
+              <button onclick="addToCart({{ product.id }})"><i class="fas fa-shopping-bag"></i> Add to Bag</button>
+              <button onclick="window.location='/product/{{ product.id }}'"><i class="fas fa-eye"></i> View</button>
+            </div>
+          </div>
+          <div class="product-info">
+            <div class="category-tag">{{ product.category.name if product.category else 'Saree' }}</div>
+            <h3>{{ product.name }}</h3>
+            <div class="product-price">
+              <span class="price-current">₹{{ "{:,.0f}".format(product.price) }}</span>
+              {% if product.original_price and product.original_price > product.price %}
+                <span class="price-original">₹{{ "{:,.0f}".format(product.original_price) }}</span>
+              {% endif %}
+            </div>
+            {% if product.fabric %}
+              <span class="product-fabric-tag">{{ product.fabric }}</span>
+            {% endif %}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <!-- Empty product grid placeholder - add 200+ products via Admin panel -->
+      <div class="products-grid">
+        {% for i in range(8) %}
+        <div class="product-card">
+          <div class="product-img-wrap">
+            <div class="product-img-placeholder">
+              <i class="fas fa-image"></i>
+              <span>Your product image</span>
+            </div>
+          </div>
+          <div class="product-info">
+            <div class="category-tag">Collection</div>
+            <h3>Add Product Name</h3>
+            <div class="product-price">
+              <span class="price-current">₹X,XXX</span>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    <div style="text-align:center; margin-top:50px;">
+      <a href="{{ url_for('collections') }}" class="btn btn-outline">View All Collections &nbsp;<i class="fas fa-arrow-right"></i></a>
+    </div>
+  </div>
+</section>
+
+<!-- ─── BRAND VIDEO ────────────────────────────────────────────────── -->
+<section class="brand-video-section">
+  <div class="section-label" style="color:var(--gold-light);">The Vivah Story</div>
+  <h2 class="section-title" style="color:white; font-family:var(--font-heading); font-size:clamp(28px,4vw,48px); letter-spacing:3px;">Crafted with Love &amp; Heritage</h2>
+  <div class="section-divider"></div>
+  <div class="brand-video-wrap">
+    <video controls poster="{{ url_for('static', filename='images/hero/hero_banner1.jpg') }}">
+      <source src="{{ url_for('static', filename='videos/brand_video.mp4') }}" type="video/mp4" />
+    </video>
+  </div>
+</section>
+
+<!-- ─── WEDDING SECTION ───────────────────────────────────────────── -->
+<section class="section">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-label">For the Bride</div>
+      <h2 class="section-title">Wedding Collection</h2>
+      <div class="section-divider"></div>
+      <p class="section-desc">Exquisitely crafted sarees for your most special day — where every thread tells a love story</p>
+    </div>
+
+    {% if wedding %}
+      <div class="products-grid">
+        {% for product in wedding %}
+        <div class="product-card">
+          <div class="product-img-wrap">
+            {% if product.image %}
+              <img src="{{ url_for('static', filename='images/products/' + product.image) }}" alt="{{ product.name }}" />
+            {% else %}
+              <div class="product-img-placeholder">
+                <i class="fas fa-heart"></i>
+                <span>Bridal Collection</span>
+              </div>
+            {% endif %}
+            <div class="product-badges">
+              <span class="badge badge-wedding">✦ Bridal</span>
+            </div>
+            <div class="product-actions-hover">
+              <button onclick="addToCart({{ product.id }})"><i class="fas fa-shopping-bag"></i> Add to Bag</button>
+              <button onclick="window.location='/product/{{ product.id }}'"><i class="fas fa-eye"></i> View</button>
+            </div>
+          </div>
+          <div class="product-info">
+            <div class="category-tag">Wedding Saree</div>
+            <h3>{{ product.name }}</h3>
+            <div class="product-price">
+              <span class="price-current">₹{{ "{:,.0f}".format(product.price) }}</span>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <!-- Wedding placeholders -->
+      <div class="products-grid">
+        {% for i in range(6) %}
+        <div class="product-card">
+          <div class="product-img-wrap">
+            <div class="product-img-placeholder" style="background: linear-gradient(135deg,#faf0e6,#f5deb3);">
+              <i class="fas fa-heart" style="color:var(--crimson);"></i>
+              <span>Bridal Saree</span>
+            </div>
+            <div class="product-badges"><span class="badge badge-wedding">✦ Bridal</span></div>
+          </div>
+          <div class="product-info">
+            <div class="category-tag">Wedding Collection</div>
+            <h3>Bridal Saree {{ i+1 }}</h3>
+            <div class="product-price"><span class="price-current">₹X,XXX</span></div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    <div style="text-align:center; margin-top:50px;">
+      <a href="{{ url_for('wedding_collection') }}" class="btn btn-crimson">View Full Wedding Collection &nbsp;<i class="fas fa-heart"></i></a>
+    </div>
+  </div>
+</section>
+
+<!-- ─── OFFERS BANNER ────────────────────────────────────────────── -->
+<section style="background:linear-gradient(135deg,var(--charcoal) 0%,var(--crimson) 50%,var(--charcoal) 100%);padding:60px 40px;">
+  <div class="container">
+    <div style="text-align:center;margin-bottom:40px;">
+      <div class="section-label" style="color:var(--gold-light)">✦ Exclusive Offers</div>
+      <h2 style="font-family:var(--font-heading);font-size:clamp(26px,4vw,46px);color:white;letter-spacing:3px">Save Big on Every Order</h2>
+      <div class="section-divider"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px;max-width:1000px;margin:0 auto 40px;">
+      {% for coupon in active_coupons[:4] %}
+      <div style="background:rgba(255,255,255,0.08);border:1px dashed rgba(201,168,76,0.5);padding:22px;text-align:center;border-radius:3px;transition:all 0.3s" onmouseover="this.style.background='rgba(255,255,255,0.14)'" onmouseout="this.style.background='rgba(255,255,255,0.08)'">
+        <div style="font-family:var(--font-heading);font-size:26px;color:var(--gold-light);letter-spacing:4px;margin-bottom:6px">
+          {% if coupon.discount_type == 'percent' %}{{ coupon.discount_value|int }}% OFF{% else %}₹{{ coupon.discount_value|int }} OFF{% endif %}
+        </div>
+        <div style="font-family:var(--font-sans);font-size:9px;letter-spacing:2px;color:rgba(255,255,255,0.5);text-transform:uppercase;margin-bottom:12px">
+          {% if coupon.min_order > 0 %}Min. order ₹{{ coupon.min_order|int }}{% else %}No minimum order{% endif %}
+        </div>
+        <div style="display:flex;align-items:center;justify-content:center;gap:8px;background:rgba(0,0,0,0.3);padding:10px 14px;border-radius:2px;">
+          <span style="font-family:var(--font-sans);font-size:14px;letter-spacing:3px;color:var(--gold-light);font-weight:700">{{ coupon.code }}</span>
+          <button onclick="copyCode('{{ coupon.code }}')" style="background:var(--gold);border:none;padding:4px 10px;cursor:pointer;font-family:var(--font-sans);font-size:9px;letter-spacing:1px;color:var(--charcoal);font-weight:700" title="Copy">COPY</button>
+        </div>
+      </div>
+      {% else %}
+      <div style="grid-column:1/-1;text-align:center;color:rgba(255,255,255,0.5);font-style:italic">No active offers right now. Check back soon!</div>
+      {% endfor %}
+    </div>
+    <div style="text-align:center">
+      <a href="{{ url_for('all_products') }}" class="btn btn-gold">Shop All Sarees &nbsp;<i class="fas fa-arrow-right"></i></a>
+    </div>
+  </div>
+</section>
+
+<!-- ─── NEW ARRIVALS ──────────────────────────────────────────────── -->
+<section class="section section-alt">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-label">Fresh Collection</div>
+      <h2 class="section-title">New Arrivals</h2>
+      <div class="section-divider"></div>
+    </div>
+
+    {% if new_arrivals %}
+      <div class="products-grid">
+        {% for product in new_arrivals %}
+        <div class="product-card">
+          <div class="product-img-wrap">
+            {% if product.image %}
+              <img src="{{ url_for('static', filename='images/products/' + product.image) }}" alt="{{ product.name }}" />
+            {% else %}
+              <div class="product-img-placeholder">
+                <i class="fas fa-star"></i>
+                <span>New Arrival</span>
+              </div>
+            {% endif %}
+            <div class="product-badges"><span class="badge badge-new">New</span></div>
+            <div class="product-actions-hover">
+              <button onclick="addToCart({{ product.id }})">Add to Bag</button>
+              <button onclick="window.location='/product/{{ product.id }}'">View</button>
+            </div>
+          </div>
+          <div class="product-info">
+            <div class="category-tag">{{ product.category.name if product.category else 'New' }}</div>
+            <h3>{{ product.name }}</h3>
+            <div class="product-price"><span class="price-current">₹{{ "{:,.0f}".format(product.price) }}</span></div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="products-grid">
+        {% for i in range(8) %}
+        <div class="product-card">
+          <div class="product-img-wrap">
+            <div class="product-img-placeholder">
+              <i class="fas fa-star" style="color:var(--gold);"></i>
+              <span>New Arrival</span>
+            </div>
+            <div class="product-badges"><span class="badge badge-new">New</span></div>
+          </div>
+          <div class="product-info">
+            <div class="category-tag">New Collection</div>
+            <h3>Saree {{ i+1 }}</h3>
+            <div class="product-price"><span class="price-current">₹X,XXX</span></div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+    <div style="text-align:center; margin-top:50px;">
+      <a href="{{ url_for('new_arrivals') }}" class="btn btn-outline">View All New Arrivals</a>
+    </div>
+  </div>
+</section>
+
+<!-- ─── STATS ─────────────────────────────────────────────────────── -->
+<div class="stats-bar">
+  <div class="stats-grid">
+    <div class="stat-item">
+      <div class="num">200+</div>
+      <div class="label">Saree Styles</div>
+    </div>
+    <div class="stat-item">
+      <div class="num">5000+</div>
+      <div class="label">Happy Customers</div>
+    </div>
+    <div class="stat-item">
+      <div class="num">15+</div>
+      <div class="label">Fabric Types</div>
+    </div>
+    <div class="stat-item">
+      <div class="num">100%</div>
+      <div class="label">Authentic Craft</div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── TESTIMONIALS ──────────────────────────────────────────────── -->
+<section class="section">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-label">Customer Stories</div>
+      <h2 class="section-title">What Our Brides Say</h2>
+      <div class="section-divider"></div>
+    </div>
+    <div class="testimonials-grid">
+      <div class="testimonial-card">
+        <p class="testimonial-text">My bridal saree from Vivah was absolutely magnificent. The quality of the silk and the intricate zari work was beyond my expectations. I felt like a queen on my wedding day!</p>
+        <div class="testimonial-author">
+          <div class="author-avatar">P</div>
+          <div>
+            <div class="stars">★★★★★</div>
+            <div class="author-name">Priya Mehta</div>
+            <div class="author-city">Ahmedabad, Gujarat</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <p class="testimonial-text">The custom saree feature is incredible! I described exactly what I wanted and the team crafted it to perfection. The AI preview helped me visualize every detail before ordering.</p>
+        <div class="testimonial-author">
+          <div class="author-avatar">S</div>
+          <div>
+            <div class="stars">★★★★★</div>
+            <div class="author-name">Shreya Patel</div>
+            <div class="author-city">Surat, Gujarat</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <p class="testimonial-text">Vivah has the most breathtaking collection of Patola sarees I have ever seen. The weaving quality and the richness of colors are truly exceptional. Highly recommended!</p>
+        <div class="testimonial-author">
+          <div class="author-avatar">A</div>
+          <div>
+            <div class="stars">★★★★★</div>
+            <div class="author-name">Ananya Sharma</div>
+            <div class="author-city">Vadodara, Gujarat</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- 🎡 SPIN THE WHEEL                          -->
+<!-- ══════════════════════════════════════════ -->
+<section class="section" style="background:linear-gradient(135deg,#1C0A0A 0%,#2d0f0f 50%,#1C0A0A 100%);overflow:hidden;position:relative">
+  <!-- bg glow -->
+  <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:600px;height:600px;background:radial-gradient(circle,rgba(201,168,76,0.08) 0%,transparent 70%);pointer-events:none"></div>
+  <div class="container" style="max-width:960px;position:relative;z-index:1">
+    <div class="section-header">
+      <div class="section-label" style="color:var(--gold-light)">✦ Your Lucky Day</div>
+      <h2 class="section-title" style="color:var(--gold-light)">Spin & Win</h2>
+      <div class="section-divider"></div>
+      <p class="section-desc" style="color:rgba(255,255,255,0.6)">Spin the wheel for a surprise discount — one spin per visit!</p>
+    </div>
+
+    <div style="display:flex;align-items:center;justify-content:center;gap:60px;flex-wrap:wrap">
+      <!-- Wheel -->
+      <div style="position:relative;flex-shrink:0">
+        <!-- Pointer -->
+        <div style="position:absolute;top:-18px;left:50%;transform:translateX(-50%);z-index:10;text-align:center">
+          <div style="width:0;height:0;border-left:14px solid transparent;border-right:14px solid transparent;border-top:28px solid var(--gold);filter:drop-shadow(0 0 8px rgba(201,168,76,0.8));margin:0 auto"></div>
+        </div>
+        <div style="position:relative;display:inline-block">
+          <!-- Outer ring glow -->
+          <div style="position:absolute;inset:-8px;border-radius:50%;background:linear-gradient(135deg,var(--gold-dark),var(--gold),var(--gold-light),var(--gold-dark));animation:spinGlow 3s linear infinite;z-index:0"></div>
+          <canvas id="wheelCanvas" width="280" height="280" style="position:relative;z-index:1;display:block;border-radius:50%"></canvas>
+          <!-- Center cap -->
+          <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:44px;height:44px;background:linear-gradient(135deg,var(--gold-dark),var(--gold));border-radius:50%;z-index:10;display:flex;align-items:center;justify-content:center;box-shadow:0 0 20px rgba(201,168,76,0.6)">
+            <i class="fas fa-gem" style="color:var(--charcoal);font-size:16px"></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right panel -->
+      <div style="text-align:center;min-width:220px">
+        <div id="spinResult" style="display:none;margin-bottom:24px;padding:20px;background:rgba(201,168,76,0.08);border:1px solid rgba(201,168,76,0.4)">
+          <div style="font-family:var(--font-sans);font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:8px">🎉 You Won!</div>
+          <div id="spinResultLabel" style="font-family:'Cinzel',serif;font-size:28px;color:var(--gold-light);font-weight:700;letter-spacing:2px"></div>
+          <div id="spinCouponCode" style="font-family:var(--font-sans);font-size:13px;letter-spacing:3px;color:rgba(255,255,255,0.7);margin-top:8px;padding:8px;background:rgba(0,0,0,0.3);border:1px dashed rgba(201,168,76,0.4)"></div>
+          <button onclick="copyCode()" style="margin-top:12px;background:transparent;border:1px solid rgba(201,168,76,0.5);color:var(--gold);font-family:var(--font-sans);font-size:10px;letter-spacing:2px;text-transform:uppercase;padding:8px 18px;cursor:pointer" id="copyBtn">
+            <i class="fas fa-copy"></i> Copy Code
+          </button>
+        </div>
+
+        <div id="spinStatus" style="font-family:var(--font-body);font-size:16px;color:rgba(255,255,255,0.55);font-style:italic;margin-bottom:24px">
+          Try your luck — one spin per visit!
+        </div>
+
+        <button id="spinBtn" onclick="spinWheel()" style="background:linear-gradient(135deg,var(--gold-dark),var(--gold),var(--gold-light));color:var(--charcoal);font-family:var(--font-sans);font-size:12px;letter-spacing:3px;text-transform:uppercase;font-weight:800;border:none;padding:16px 40px;cursor:pointer;transition:all 0.3s;box-shadow:0 0 30px rgba(201,168,76,0.3)">
+          <i class="fas fa-rotate"></i> SPIN THE WHEEL
+        </button>
+        <div style="margin-top:14px;font-family:var(--font-sans);font-size:11px;color:rgba(255,255,255,0.3);letter-spacing:1px">Use your code at checkout</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+@keyframes spinGlow{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
+</style>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // Splash screen logic
+  function dismissSplash() {
+    const s = document.getElementById('splashScreen');
+    s.classList.add('fade-out');
+    setTimeout(() => s.remove(), 900);
+    sessionStorage.setItem('splashShown','1');
+  }
+  // Auto-dismiss after video ends or 8 seconds
+  window.addEventListener('DOMContentLoaded', () => {
+    if (sessionStorage.getItem('splashShown')) {
+      const s = document.getElementById('splashScreen');
+      if (s) s.remove();
+      return;
+    }
+    const v = document.getElementById('splashVideo');
+    if (v) {
+      v.addEventListener('ended', dismissSplash);
+      // setTimeout(dismissSplash, 8000);
+    }
+  });
+
+  // Hero slider
+  let currentSlide = 0;
+  const slides = document.querySelectorAll('.hero-slide');
+  const dots = document.querySelectorAll('.hero-dot');
+
+  function goToSlide(n) {
+    slides[currentSlide].classList.remove('active');
+    dots[currentSlide].classList.remove('active');
+    currentSlide = n;
+    slides[currentSlide].classList.add('active');
+    dots[currentSlide].classList.add('active');
+  }
+
+  setInterval(() => {
+    goToSlide((currentSlide + 1) % slides.length);
+  }, 5000);
+
+// ── SPIN THE WHEEL ────────────────────────────────────────────
+const WHEEL_SEGMENTS = [
+  { label: '5% OFF',    code: 'VIVAH5',   color: '#8B1A1A', textColor: '#f0d080' },
+  { label: '10% OFF',   code: 'VIVAH10',  color: '#C9A84C', textColor: '#1a0a0a' },
+  { label: 'FREE SHIP', code: 'SHIPFREE', color: '#2d0f0f', textColor: '#f0d080' },
+  { label: '15% OFF',   code: 'VIVAH15',  color: '#7a5c1e', textColor: '#fff8e1' },
+  { label: '8% OFF',    code: 'VIVAH8',   color: '#8B1A1A', textColor: '#f0d080' },
+  { label: 'LUCKY DIP', code: 'LUCKY20',  color: '#C9A84C', textColor: '#1a0a0a' },
+  { label: '12% OFF',   code: 'VIVAH12',  color: '#2d0f0f', textColor: '#f0d080' },
+  { label: '20% OFF',   code: 'VIVAH20',  color: '#5c1a1a', textColor: '#f0d080' },
+];
+
+const canvas = document.getElementById('wheelCanvas');
+if (canvas) {
+  const ctx = canvas.getContext('2d');
+  const cx = canvas.width / 2, cy = canvas.height / 2, r = cx - 4;
+  const arc = (2 * Math.PI) / WHEEL_SEGMENTS.length;
+  let currentAngle = 0, spinning = false, hasSpun = sessionStorage.getItem('vivahSpun');
+
+  function drawWheel(angle) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    WHEEL_SEGMENTS.forEach((seg, i) => {
+      const start = angle + i * arc;
+      const end = start + arc;
+      // Segment
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.arc(cx, cy, r, start, end);
+      ctx.closePath();
+      ctx.fillStyle = seg.color;
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(201,168,76,0.5)';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+      // Text
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.rotate(start + arc / 2);
+      ctx.textAlign = 'right';
+      ctx.fillStyle = seg.textColor;
+      ctx.font = 'bold 11px Lato, sans-serif';
+      ctx.letterSpacing = '1px';
+      ctx.fillText(seg.label, r - 12, 4);
+      ctx.restore();
+    });
+  }
+
+  drawWheel(currentAngle);
+  if (hasSpun) {
+    document.getElementById('spinBtn').disabled = true;
+    document.getElementById('spinBtn').style.opacity = '0.4';
+    document.getElementById('spinStatus').textContent = 'You already spun today! Come back tomorrow.';
+  }
+
+  function spinWheel() {
+    if (spinning || sessionStorage.getItem('vivahSpun')) return;
+    spinning = true;
+    document.getElementById('spinBtn').disabled = true;
+    document.getElementById('spinStatus').textContent = 'Spinning...';
+    document.getElementById('spinResult').style.display = 'none';
+
+    const winIndex = Math.floor(Math.random() * WHEEL_SEGMENTS.length);
+    const extraSpins = 5 + Math.random() * 3; // 5-8 full rotations
+    const targetAngle = currentAngle + (extraSpins * 2 * Math.PI) + (2 * Math.PI - (winIndex * arc + arc / 2));
+    const duration = 4000;
+    const startTime = performance.now();
+    const startAngle = currentAngle;
+
+    function animate(now) {
+      const elapsed = now - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      // Ease out cubic
+      const eased = 1 - Math.pow(1 - progress, 3);
+      currentAngle = startAngle + (targetAngle - startAngle) * eased;
+      drawWheel(currentAngle);
+      if (progress < 1) {
+        requestAnimationFrame(animate);
+      } else {
+        spinning = false;
+        sessionStorage.setItem('vivahSpun', '1');
+        showSpinResult(WHEEL_SEGMENTS[winIndex]);
+      }
+    }
+    requestAnimationFrame(animate);
+  }
+
+  window.spinWheel = spinWheel;
+
+  function showSpinResult(seg) {
+    document.getElementById('spinResultLabel').textContent = seg.label;
+    document.getElementById('spinCouponCode').textContent = seg.code;
+    document.getElementById('spinResult').style.display = 'block';
+    document.getElementById('spinStatus').textContent = '🎉 Apply code at checkout!';
+    document.getElementById('spinBtn').style.opacity = '0.4';
+    // Flash celebration
+    const c = document.getElementById('flashContainer');
+    const m = document.createElement('div');
+    m.className = 'flash-msg success';
+    m.textContent = '🎉 You won ' + seg.label + '! Code: ' + seg.code;
+    c.appendChild(m);
+    setTimeout(() => m.remove(), 5000);
+  }
+
+  window.copyCode = function() {
+    const code = document.getElementById('spinCouponCode').textContent;
+    navigator.clipboard.writeText(code).then(() => {
+      document.getElementById('copyBtn').innerHTML = '<i class="fas fa-check"></i> Copied!';
+      setTimeout(() => { document.getElementById('copyBtn').innerHTML = '<i class="fas fa-copy"></i> Copy Code'; }, 2000);
+    });
+  };
+}
+</script>
+{% endblock %}

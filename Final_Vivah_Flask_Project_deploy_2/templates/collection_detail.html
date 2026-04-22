@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+{% block title %}{{ category.name }} – Vivah{% endblock %}
+{% block extra_head %}
+<style>
+.col-detail-hero{background:linear-gradient(135deg,var(--crimson),var(--charcoal));padding:52px 40px;text-align:center;color:white;position:relative;overflow:hidden}
+.col-detail-hero::before{content:'';position:absolute;inset:0;opacity:0.15}
+{% if category.image %}.col-detail-hero::before{background:url('/static/images/{{ category.image }}') center/cover}{% endif %}
+.col-detail-hero-inner{position:relative;z-index:1}
+.col-detail-hero h1{font-family:var(--font-heading);font-size:clamp(28px,5vw,52px);letter-spacing:4px;color:var(--gold-light)}
+.filter-bar{background:white;padding:16px 32px;border-bottom:1px solid var(--ivory-dark);display:flex;align-items:center;gap:16px;flex-wrap:wrap;box-shadow:0 2px 8px rgba(0,0,0,0.05);position:sticky;top:76px;z-index:50}
+.filter-bar select,.filter-bar input{padding:8px 13px;border:1.5px solid rgba(201,168,76,0.28);background:var(--ivory);font-family:var(--font-sans);font-size:12px;outline:none;border-radius:2px;min-width:140px}
+.filter-bar select:focus,.filter-bar input:focus{border-color:var(--gold)}
+.filter-label{font-family:var(--font-sans);font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--warm-gray);white-space:nowrap}
+.wl-btn{position:absolute;top:10px;right:10px;width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,0.92);border:none;cursor:pointer;font-size:15px;color:var(--warm-gray);box-shadow:0 2px 8px rgba(0,0,0,0.15);z-index:2;display:flex;align-items:center;justify-content:center;transition:all 0.25s}
+.wl-btn:hover,.wl-btn.active{background:var(--crimson);color:white}
+.discount-badge{position:absolute;top:10px;left:10px;background:var(--crimson);color:white;font-family:var(--font-sans);font-size:9px;letter-spacing:1px;padding:3px 8px;font-weight:700;z-index:2}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="col-detail-hero">
+  <div class="col-detail-hero-inner">
+    <div class="section-label" style="color:var(--gold-light)">Vivah Collection</div>
+    <h1>{{ category.name }}</h1>
+    <div class="section-divider"></div>
+    {% if category.description %}<p style="font-style:italic;opacity:.85;font-size:15px">{{ category.description }}</p>{% endif %}
+  </div>
+</div>
+
+<!-- FILTER BAR -->
+<form method="GET" action="{{ url_for('collection_detail', slug=category.slug) }}" class="filter-bar" id="filterForm">
+  <span class="filter-label"><i class="fas fa-sliders-h" style="color:var(--gold);margin-right:4px"></i> Filter:</span>
+
+  <div style="display:flex;align-items:center;gap:6px">
+    <span class="filter-label">Price</span>
+    <input type="number" name="min_price" placeholder="Min ₹" value="{{ filters.min_price or '' }}" style="width:90px" />
+    <span style="color:var(--warm-gray);font-size:12px">–</span>
+    <input type="number" name="max_price" placeholder="Max ₹" value="{{ filters.max_price or '' }}" style="width:90px" />
+  </div>
+
+  <select name="fabric" onchange="this.form.submit()">
+    <option value="">All Fabrics</option>
+    {% for fab in ['Pure Silk','Kanjivaram Silk','Bandhani','Patola','Gharchola','Organza','Chiffon','Net','Velvet','Tissue','Banarasi Silk','Georgette','Cotton Silk'] %}
+    <option value="{{ fab }}" {{ 'selected' if filters.fabric == fab }}>{{ fab }}</option>
+    {% endfor %}
+  </select>
+
+  <select name="occasion" onchange="this.form.submit()">
+    <option value="">All Occasions</option>
+    {% for occ in ['Bridal / Wedding','Sangeet / Mehendi','Reception','Haldi','Festive / Puja','Casual','Party','Office'] %}
+    <option value="{{ occ }}" {{ 'selected' if filters.occasion == occ }}>{{ occ }}</option>
+    {% endfor %}
+  </select>
+
+  <select name="sort" onchange="this.form.submit()">
+    <option value="newest" {{ 'selected' if filters.sort=='newest' }}>Newest First</option>
+    <option value="price_asc" {{ 'selected' if filters.sort=='price_asc' }}>Price: Low → High</option>
+    <option value="price_desc" {{ 'selected' if filters.sort=='price_desc' }}>Price: High → Low</option>
+    <option value="name" {{ 'selected' if filters.sort=='name' }}>Name A–Z</option>
+  </select>
+
+  <button type="submit" style="padding:8px 16px;background:var(--gold);border:none;cursor:pointer;font-family:var(--font-sans);font-size:10px;letter-spacing:2px;color:var(--charcoal);font-weight:700;text-transform:uppercase">Apply</button>
+  {% if filters.color or filters.fabric or filters.occasion or filters.min_price or filters.max_price %}
+  <a href="{{ url_for('collection_detail', slug=category.slug) }}" style="font-family:var(--font-sans);font-size:11px;color:var(--crimson);text-decoration:underline">Clear</a>
+  {% endif %}
+</form>
+
+<section class="section">
+  <div class="container">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px">
+      <p style="font-family:var(--font-sans);font-size:12px;color:var(--warm-gray);letter-spacing:1px">
+        <strong style="color:var(--charcoal)">{{ products|length }}</strong> saree{{ 's' if products|length != 1 }} found
+      </p>
+    </div>
+
+    {% if products %}
+    <div class="products-grid">
+      {% for product in products %}
+      <div class="product-card">
+        <div class="product-img-wrap">
+          {% if product.image %}
+            <img src="{{ url_for('static', filename='images/products/' + product.image) }}" alt="{{ product.name }}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" />
+            <div class="product-img-placeholder" style="display:none"><i class="fas fa-image"></i><span>{{ product.fabric or 'Saree' }}</span></div>
+          {% else %}
+            <div class="product-img-placeholder"><i class="fas fa-image"></i><span>{{ product.fabric or 'Saree' }}</span></div>
+          {% endif %}
+          {% if product.original_price and product.original_price > product.price %}
+          <div class="discount-badge">{{ ((1 - product.price/product.original_price)*100)|int }}% OFF</div>
+          {% endif %}
+          <div class="product-badges">
+            {% if product.is_new_arrival %}<span class="badge badge-new">New</span>{% endif %}
+            {% if product.is_wedding %}<span class="badge badge-wedding">Bridal</span>{% endif %}
+          </div>
+          <button class="wl-btn {{ 'active' if product.id in wishlist }}" id="wl-{{ product.id }}"
+            onclick="toggleWishlist({{ product.id }})" title="Wishlist">
+            <i class="fas fa-heart"></i>
+          </button>
+          <div class="product-actions-hover">
+            <button onclick="addToCart({{ product.id }})"><i class="fas fa-shopping-bag"></i> Add</button>
+            <button onclick="window.location='/product/{{ product.id }}'"><i class="fas fa-eye"></i> View</button>
+          </div>
+        </div>
+        <div class="product-info">
+          <div class="category-tag">{{ product.category.name if product.category else category.name }}</div>
+          <h3>{{ product.name }}</h3>
+          <div class="product-price">
+            <span class="price-current">₹{{ "{:,.0f}".format(product.price) }}</span>
+            {% if product.original_price and product.original_price > product.price %}<span class="price-original">₹{{ "{:,.0f}".format(product.original_price) }}</span>{% endif %}
+          </div>
+          {% if product.fabric %}<span class="product-fabric-tag">{{ product.fabric }}</span>{% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div style="text-align:center;padding:80px 20px">
+      <i class="fas fa-search" style="font-size:56px;color:var(--gold);display:block;margin-bottom:18px"></i>
+      <h3 style="font-family:var(--font-heading);font-size:26px;color:var(--charcoal);margin-bottom:10px">No products yet</h3>
+      <p style="color:var(--warm-gray);margin-bottom:24px">Add products via <a href="{{ url_for('admin') }}" style="color:var(--crimson)">Admin Panel</a> or try clearing filters.</p>
+    </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function toggleWishlist(id) {
+  fetch('/wishlist/toggle/' + id, {method: 'POST'})
+  .then(r => r.json())
+  .then(d => {
+    const btn = document.getElementById('wl-' + id);
+    if (btn) btn.classList.toggle('active', d.in_wishlist);
+    const c = document.getElementById('flashContainer');
+    const m = document.createElement('div');
+    m.className = 'flash-msg ' + (d.in_wishlist ? 'success' : '');
+    m.textContent = d.message; c.appendChild(m);
+    setTimeout(() => m.remove(), 3000);
+  });
+}
+</script>
+{% endblock %}

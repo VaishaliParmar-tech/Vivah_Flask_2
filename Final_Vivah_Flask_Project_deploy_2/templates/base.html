@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}Vivah – Royal Indian Sarees{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,600&family=Cinzel:wght@400;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    :root {
+      --gold: #C9A84C; --gold-light: #E8CC7A; --gold-dark: #9A7A2E;
+      --crimson: #8B1A1A; --crimson-light: #B22222;
+      --ivory: #FAF6EE; --ivory-dark: #F0E9DA;
+      --charcoal: #1C1C1C; --charcoal-light: #333333; --warm-gray: #7A6A5A;
+      --font-heading: 'Cinzel', serif; --font-body: 'Cormorant Garamond', serif; --font-sans: 'Lato', sans-serif;
+      --shadow: 0 4px 30px rgba(0,0,0,0.12); --shadow-gold: 0 4px 20px rgba(201,168,76,0.3);
+      --transition: all 0.35s cubic-bezier(0.25,0.46,0.45,0.94);
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth}
+    body{font-family:var(--font-body);background:var(--ivory);color:var(--charcoal);font-size:17px;line-height:1.7;overflow-x:hidden}
+    a{text-decoration:none;color:inherit;transition:var(--transition)}
+    img{max-width:100%;display:block}
+    ul{list-style:none}
+    ::-webkit-scrollbar{width:6px}
+    ::-webkit-scrollbar-track{background:var(--ivory-dark)}
+    ::-webkit-scrollbar-thumb{background:var(--gold);border-radius:3px}
+
+    .announcement-bar{background:var(--crimson);color:var(--gold-light);text-align:center;padding:8px 20px;font-family:var(--font-sans);font-size:12px;letter-spacing:2px;text-transform:uppercase}
+
+    /* NAVBAR */
+    .navbar{position:sticky;top:0;z-index:1000;background:rgba(250,246,238,0.97);backdrop-filter:blur(12px);border-bottom:1px solid rgba(201,168,76,0.25);transition:var(--transition)}
+    .navbar.scrolled{box-shadow:0 2px 20px rgba(0,0,0,0.1)}
+    .nav-wrapper{max-width:1400px;margin:0 auto;padding:0 30px;display:flex;align-items:center;height:76px;gap:16px;width:100%}
+
+    .nav-logo{display:flex;align-items:center;gap:12px;flex-shrink:0}
+    .nav-logo .logo-img{width:50px;height:50px;border-radius:50%;object-fit:cover;border:2px solid var(--gold);flex-shrink:0}
+    .nav-logo .logo-text{display:flex;flex-direction:column}
+    .nav-logo .logo-name{font-family:var(--font-heading);font-size:24px;font-weight:700;color:var(--crimson);letter-spacing:4px;white-space:nowrap;line-height:1.1}
+    .nav-logo .logo-tagline{font-size:9px;letter-spacing:3px;color:var(--gold-dark);text-transform:uppercase;white-space:nowrap}
+
+    .nav-links{display:flex;gap:22px;align-items:center;flex:1;justify-content:center}
+    .nav-links a{font-family:var(--font-sans);font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--charcoal);position:relative;padding-bottom:4px;white-space:nowrap}
+    .nav-links a::after{content:'';position:absolute;bottom:0;left:0;width:0;height:1px;background:var(--gold);transition:width 0.3s ease}
+    .nav-links a:hover{color:var(--gold-dark)}
+    .nav-links a:hover::after{width:100%}
+    .nav-links .nav-highlight{color:var(--crimson);font-weight:700}
+
+    .nav-search-form{display:flex;align-items:center;border:1.5px solid rgba(201,168,76,0.4);border-radius:2px;overflow:hidden}
+    .nav-search-form input{border:none;background:transparent;padding:6px 12px;font-family:var(--font-sans);font-size:12px;width:140px;outline:none}
+    .nav-search-form button{background:var(--gold);border:none;padding:6px 10px;cursor:pointer;color:white}
+
+    .nav-right{display:flex;align-items:center;gap:14px;flex-shrink:0;margin-left:auto}
+    .nav-actions{display:flex;gap:14px;align-items:center}
+    .nav-actions a{font-size:17px;color:var(--charcoal);position:relative}
+    .nav-actions a:hover{color:var(--gold-dark)}
+    .cart-badge{position:absolute;top:-8px;right:-8px;background:var(--crimson);color:white;width:16px;height:16px;border-radius:50%;font-size:9px;font-family:var(--font-sans);display:flex;align-items:center;justify-content:center}
+
+    .user-menu{position:relative}
+    .user-menu-btn{display:flex;align-items:center;gap:7px;cursor:pointer;font-family:var(--font-sans);font-size:12px;letter-spacing:1px;color:var(--charcoal);background:none;border:1px solid rgba(201,168,76,0.4);padding:6px 12px;transition:var(--transition)}
+    .user-menu-btn:hover{background:var(--gold);color:var(--charcoal);border-color:var(--gold)}
+    .user-dropdown{position:absolute;top:calc(100% + 10px);right:0;background:white;min-width:200px;box-shadow:0 8px 30px rgba(0,0,0,0.15);border-top:2px solid var(--gold);opacity:0;visibility:hidden;transform:translateY(-8px);transition:var(--transition);z-index:2000}
+    .user-menu:hover .user-dropdown{opacity:1;visibility:visible;transform:translateY(0)}
+    .user-dropdown a,.user-dropdown button{display:flex;align-items:center;gap:10px;padding:11px 18px;font-family:var(--font-sans);font-size:12px;letter-spacing:1px;color:var(--charcoal);width:100%;background:none;border:none;cursor:pointer;text-align:left;transition:var(--transition)}
+    .user-dropdown a:hover,.user-dropdown button:hover{background:var(--ivory);color:var(--crimson)}
+    .user-dropdown hr{border:none;border-top:1px solid var(--ivory-dark);margin:4px 0}
+    .user-dropdown i{width:16px;color:var(--gold-dark)}
+
+    .hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:6px;flex-shrink:0;background:none;border:none}
+    .hamburger span{display:block;width:22px;height:2px;background:var(--charcoal);transition:var(--transition)}
+
+    /* MOBILE MENU
+       Key fix: position:fixed with explicit left:0 right:0 width:100%
+       transform slide-in animation so it never causes layout shift      */
+    .mobile-menu{
+      position:fixed;
+      top:0;left:0;
+      width:100vw;      /* 100vw instead of relying on right:0 */
+      height:100%;
+      background:var(--ivory);
+      z-index:9990;
+      padding:76px 20px 40px;
+      flex-direction:column;
+      gap:22px;
+      overflow-y:auto;
+      overflow-x:hidden;
+      /* Hidden by default via transform — NOT display:none
+         so that the transition actually plays */
+      display:flex;
+      transform:translateX(-100%);
+      transition:transform 0.32s cubic-bezier(0.25,0.46,0.45,0.94);
+      pointer-events:none;
+    }
+    .mobile-menu.open{
+      transform:translateX(0);
+      pointer-events:all;
+    }
+    .mobile-menu a{
+      font-family:var(--font-heading);font-size:20px;
+      color:var(--charcoal);letter-spacing:2px;
+      border-bottom:1px solid rgba(201,168,76,0.2);
+      padding-bottom:16px;display:block;
+    }
+    .mobile-menu-close{
+      position:absolute;top:18px;right:18px;
+      font-size:20px;cursor:pointer;
+      color:var(--charcoal);background:none;border:none;
+      padding:6px;line-height:1;
+    }
+
+    .flash-container{position:fixed;top:90px;right:20px;z-index:9000;display:flex;flex-direction:column;gap:10px}
+    .flash-msg{background:var(--charcoal);color:var(--gold-light);padding:14px 20px;border-left:3px solid var(--gold);font-family:var(--font-sans);font-size:14px;max-width:340px;animation:slideInRight 0.4s ease;cursor:pointer}
+    .flash-msg.success{border-left-color:#4CAF50}
+    .flash-msg.error{border-left-color:var(--crimson);background:var(--crimson);color:white}
+    .flash-msg.info{border-left-color:#2196F3}
+    @keyframes slideInRight{from{transform:translateX(100px);opacity:0}to{transform:translateX(0);opacity:1}}
+
+    .section{padding:80px 40px}
+    .section-alt{background:var(--ivory-dark)}
+    .container{max-width:1400px;margin:0 auto}
+    .section-header{text-align:center;margin-bottom:56px}
+    .section-label{font-family:var(--font-sans);font-size:12px;letter-spacing:4px;text-transform:uppercase;color:var(--gold-dark);margin-bottom:12px}
+    .section-title{font-family:var(--font-heading);font-size:clamp(26px,4vw,46px);color:var(--crimson);letter-spacing:2px;line-height:1.2}
+    .section-divider{width:60px;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);margin:18px auto}
+    .section-desc{font-size:17px;color:var(--warm-gray);max-width:600px;margin:0 auto;font-style:italic}
+
+    .btn{display:inline-flex;align-items:center;gap:8px;padding:13px 30px;font-family:var(--font-sans);font-size:11px;letter-spacing:3px;text-transform:uppercase;font-weight:700;border:none;cursor:pointer;transition:var(--transition);position:relative;overflow:hidden}
+    .btn-gold{background:linear-gradient(135deg,var(--gold-dark),var(--gold),var(--gold-light));color:var(--charcoal)}
+    .btn-gold:hover{transform:translateY(-2px);box-shadow:var(--shadow-gold)}
+    .btn-crimson{background:var(--crimson);color:var(--gold-light)}
+    .btn-crimson:hover{background:var(--crimson-light);transform:translateY(-2px)}
+    .btn-outline{background:transparent;color:var(--gold-dark);border:1.5px solid var(--gold)}
+    .btn-outline:hover{background:var(--gold);color:var(--charcoal)}
+    .btn-white{background:white;color:var(--crimson)}
+    .btn-white:hover{background:var(--ivory);transform:translateY(-2px)}
+
+    .products-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:28px}
+    .product-card{background:white;position:relative;overflow:hidden;transition:var(--transition);box-shadow:0 2px 15px rgba(0,0,0,0.06);cursor:pointer}
+    .product-card:hover{transform:translateY(-6px);box-shadow:0 15px 40px rgba(0,0,0,0.12)}
+    .product-img-wrap{position:relative;overflow:hidden;aspect-ratio:3/4;background:var(--ivory-dark)}
+    .product-img-wrap img{width:100%;height:100%;object-fit:cover;transition:transform 0.6s ease}
+    .product-card:hover .product-img-wrap img{transform:scale(1.05)}
+    .product-img-placeholder{width:100%;height:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;color:var(--gold);font-size:48px}
+    .product-img-placeholder span{font-family:var(--font-sans);font-size:11px;letter-spacing:2px;color:var(--warm-gray)}
+    .product-badges{position:absolute;top:12px;left:12px;display:flex;flex-direction:column;gap:6px}
+    .badge{padding:4px 10px;font-family:var(--font-sans);font-size:9px;letter-spacing:2px;text-transform:uppercase;font-weight:700}
+    .badge-new{background:var(--crimson);color:white}
+    .badge-wedding{background:var(--gold);color:var(--charcoal)}
+    .badge-sale{background:var(--charcoal);color:var(--gold-light)}
+    .product-actions-hover{position:absolute;bottom:-60px;left:0;right:0;background:rgba(28,28,28,0.9);padding:14px;display:flex;gap:8px;justify-content:center;transition:bottom 0.3s ease}
+    .product-card:hover .product-actions-hover{bottom:0}
+    .product-actions-hover button{flex:1;padding:10px;font-family:var(--font-sans);font-size:10px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;border:1px solid var(--gold);background:transparent;color:var(--gold-light);transition:var(--transition)}
+    .product-actions-hover button:hover{background:var(--gold);color:var(--charcoal)}
+    .product-info{padding:18px}
+    .product-info .category-tag{font-family:var(--font-sans);font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--gold-dark);margin-bottom:6px}
+    .product-info h3{font-family:var(--font-heading);font-size:19px;color:var(--charcoal);margin-bottom:8px;font-weight:600}
+    .product-price{display:flex;align-items:center;gap:10px}
+    .price-current{font-size:22px;color:var(--crimson);font-weight:600}
+    .price-original{font-size:15px;color:var(--warm-gray);text-decoration:line-through}
+    .product-fabric-tag{display:inline-block;margin-top:8px;padding:4px 12px;font-family:var(--font-sans);font-size:12px;background:var(--ivory-dark);color:var(--warm-gray);border-radius:2px}
+
+    .form-group{margin-bottom:18px}
+    .form-group label{display:block;font-family:var(--font-sans);font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--warm-gray);margin-bottom:6px}
+    .form-group input,.form-group select,.form-group textarea{width:100%;padding:12px 15px;border:1.5px solid rgba(201,168,76,0.25);background:var(--ivory);font-family:var(--font-body);font-size:16px;color:var(--charcoal);outline:none;transition:var(--transition);border-radius:2px}
+    .form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--gold);background:white}
+    .form-group textarea{resize:vertical;min-height:90px}
+
+    footer{background:var(--charcoal);color:rgba(255,255,255,0.75)}
+    .footer-top{max-width:1400px;margin:0 auto;padding:60px 40px 40px;display:grid;grid-template-columns:2fr 1fr 1fr 1.5fr;gap:50px}
+    .footer-brand .logo-name{font-family:var(--font-heading);font-size:26px;color:var(--gold-light);letter-spacing:4px;margin-bottom:6px}
+    .footer-brand .tagline{font-style:italic;font-size:13px;color:var(--gold);letter-spacing:2px;margin-bottom:18px}
+    .footer-brand p{font-size:14px;line-height:1.8;margin-bottom:22px}
+    .footer-social{display:flex;gap:12px}
+    .footer-social a{width:36px;height:36px;border:1px solid rgba(201,168,76,0.3);display:flex;align-items:center;justify-content:center;color:var(--gold);font-size:13px;transition:var(--transition)}
+    .footer-social a:hover{background:var(--gold);color:var(--charcoal)}
+    .footer-col h4{font-family:var(--font-sans);font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--gold-light);margin-bottom:18px;padding-bottom:10px;border-bottom:1px solid rgba(201,168,76,0.2)}
+    .footer-col ul li{margin-bottom:9px}
+    .footer-col ul li a{font-size:14px;transition:var(--transition)}
+    .footer-col ul li a:hover{color:var(--gold);padding-left:6px}
+    .newsletter-form{display:flex;border:1px solid rgba(201,168,76,0.3)}
+    .newsletter-form input{flex:1;min-width:0;background:rgba(255,255,255,0.05);border:none;padding:11px 13px;color:white;font-family:var(--font-sans);font-size:12px;outline:none}
+    .newsletter-form input::placeholder{color:rgba(255,255,255,0.4)}
+    .newsletter-form button{background:var(--gold);border:none;padding:11px 16px;cursor:pointer;color:var(--charcoal);font-size:14px;flex-shrink:0}
+    .footer-bottom{border-top:1px solid rgba(255,255,255,0.08);padding:18px 40px;display:flex;justify-content:space-between;align-items:center;max-width:1400px;margin:0 auto;font-size:12px;font-family:var(--font-sans);color:rgba(255,255,255,0.4)}
+    .footer-bottom-links{display:flex;gap:18px}
+    .footer-bottom-links a{color:rgba(255,255,255,0.4)}
+    .footer-bottom-links a:hover{color:var(--gold)}
+
+    /* RESPONSIVE */
+    @media(max-width:1100px){.footer-top{grid-template-columns:1fr 1fr}}
+
+    @media(max-width:768px){
+      .announcement-bar{font-size:10px;padding:7px 12px;letter-spacing:1px}
+
+      /* Hide desktop items */
+      /* .nav-links,.nav-search-form{display:none !important} */
+      .nav-links,.nav-search-form,.nav-actions{display:none !important}
+      .hamburger{display:flex}
+
+      .navbar{padding:0}
+      .nav-wrapper{padding:0 12px;height:54px;gap:0;justify-content:space-between}
+
+      /* Logo — flex:1 so it fills available space but doesn't push icons */
+      .nav-logo{gap:8px;flex:1;min-width:0}
+      .nav-logo .logo-img{width:32px;height:32px}
+      .nav-logo .logo-name{font-size:18px;letter-spacing:2px}
+      .nav-logo .logo-tagline{font-size:7px;letter-spacing:1px}
+
+      /* Right group — fixed/shrink:0 */
+      .nav-right{flex-shrink:0;gap:8px;margin-left:0}
+      .nav-actions{gap:8px}
+      .nav-actions a{font-size:16px}
+      .cart-badge{width:13px;height:13px;font-size:8px;top:-5px;right:-5px}
+
+      /* User btn icon-only */
+      .user-menu-btn span{display:none}
+      .user-menu-btn .fa-chevron-down{display:none}
+      .user-menu-btn{padding:4px 6px;border:none;font-size:16px}
+
+      /* Login btn compact */
+      .nav-actions .btn-outline{padding:5px 9px;font-size:9px;letter-spacing:1px}
+
+      .section{padding:44px 16px}
+      .section-title{font-size:clamp(22px,6vw,36px)}
+      .section-desc{font-size:15px}
+      .container{padding:0 4px}
+
+      .products-grid{grid-template-columns:repeat(2,1fr);gap:12px}
+      .product-info{padding:12px}
+      .product-info h3{font-size:14px}
+      .price-current{font-size:17px}
+      .price-original{font-size:13px}
+      .product-fabric-tag{font-size:11px;padding:3px 9px}
+
+      .btn{padding:11px 22px;font-size:10px;letter-spacing:2px}
+
+      .flash-container{top:auto;bottom:16px;right:12px;left:12px}
+      .flash-msg{font-size:13px;max-width:100%}
+
+      .footer-top{grid-template-columns:1fr;padding:36px 20px 20px;gap:28px}
+      .footer-bottom{flex-direction:column;gap:8px;text-align:center;padding:14px 20px;font-size:11px}
+      .footer-bottom-links{gap:14px;flex-wrap:wrap;justify-content:center}
+
+      .form-group input,.form-group select,.form-group textarea{font-size:16px;padding:11px 13px}
+      .form-group label{font-size:10px}
+    }
+
+    @media(max-width:380px){
+      .nav-logo .logo-name{font-size:16px}
+      .nav-logo .logo-tagline{display:none}
+      .nav-logo .logo-img{width:28px;height:28px}
+      .products-grid{gap:8px}
+      .product-info{padding:8px}
+      .product-info h3{font-size:12px}
+    }
+  </style>
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+
+<div class="announcement-bar">✦ Free shipping above ₹2999 &nbsp;|&nbsp; Use <strong>VIVAH20</strong> for 20% OFF &nbsp;|&nbsp; New Wedding Collection 2026 ✦</div>
+
+<nav class="navbar" id="navbar">
+  <div class="nav-wrapper">
+
+    <a href="{{ url_for('index') }}" class="nav-logo">
+      <img src="{{ url_for('static', filename='images/logos/logo_main.jpg') }}" alt="Vivah Logo" class="logo-img" onerror="this.style.display='none'" />
+      <div class="logo-text">
+        <div class="logo-name">VIVAH</div>
+        <div class="logo-tagline">Royal Indian Sarees</div>
+      </div>
+    </a>
+
+    <ul class="nav-links">
+      <li><a href="{{ url_for('index') }}">Home</a></li>
+      <li><a href="{{ url_for('collections') }}">Collections</a></li>
+      <li><a href="{{ url_for('all_products') }}">Shop</a></li>
+      <li><a href="{{ url_for('wedding_collection') }}" class="nav-highlight">Wedding</a></li>
+      <li><a href="{{ url_for('new_arrivals') }}">New Arrivals</a></li>
+      <li><a href="{{ url_for('about') }}">About</a></li>
+      <li><a href="{{ url_for('contact') }}">Contact</a></li>
+    </ul>
+
+    <div class="nav-right">
+      <form class="nav-search-form" action="{{ url_for('search') }}" method="GET" id="navSearchForm">
+        <input type="text" name="q" id="navSearchInput" placeholder="Search sarees..." autocomplete="off" />
+        <button type="submit"><i class="fas fa-search"></i></button>
+      </form>
+
+      <div class="nav-actions">
+        <a href="{{ url_for('wishlist') }}" title="Wishlist">
+          <i class="fas fa-heart" style="color:{{ 'var(--crimson)' if wishlist_count > 0 else 'inherit' }}"></i>
+          {% if wishlist_count > 0 %}<span class="cart-badge" style="background:var(--gold);color:var(--charcoal)">{{ wishlist_count }}</span>{% endif %}
+        </a>
+        <a href="{{ url_for('cart') }}" title="Cart">
+          <i class="fas fa-shopping-bag"></i>
+          <span class="cart-badge">{{ cart_count }}</span>
+        </a>
+        {% if current_user %}
+        <div class="user-menu">
+          <button class="user-menu-btn">
+            <i class="fas fa-user-circle"></i>
+            <span>{{ current_user.name.split()[0] }}</span>
+            <i class="fas fa-chevron-down" style="font-size:9px;"></i>
+          </button>
+          <div class="user-dropdown">
+            <a href="{{ url_for('profile') }}"><i class="fas fa-user"></i> My Profile</a>
+            <a href="{{ url_for('profile') }}#orders"><i class="fas fa-box"></i> My Orders</a>
+            <a href="{{ url_for('track_order') }}"><i class="fas fa-map-marker-alt"></i> Track Order</a>
+            <hr/>
+            <a href="{{ url_for('profile') }}#change-password"><i class="fas fa-key"></i> Change Password</a>
+            <hr/>
+            <a href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i> Logout</a>
+          </div>
+        </div>
+        {% else %}
+        <a href="{{ url_for('login') }}" class="btn btn-outline" style="padding:7px 16px;font-size:10px;letter-spacing:2px;"><i class="fas fa-user"></i> Login</a>
+        {% endif %}
+      </div>
+
+      <button class="hamburger" onclick="toggleMobileMenu()" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+
+  </div>
+</nav>
+
+<!-- MOBILE MENU -->
+<div class="mobile-menu" id="mobileMenu">
+  <button class="mobile-menu-close" onclick="toggleMobileMenu()" aria-label="Close">
+    <i class="fas fa-times"></i>
+  </button>
+
+  <form action="{{ url_for('search') }}" method="GET" style="display:flex;border:1.5px solid rgba(201,168,76,0.4);overflow:hidden;width:100%;flex-shrink:0">
+    <input type="text" name="q" placeholder="Search sarees..."
+      style="flex:1;min-width:0;padding:10px 12px;border:none;background:var(--ivory);font-family:var(--font-body);font-size:15px;outline:none"/>
+    <button type="submit" style="background:var(--gold);border:none;padding:10px 14px;cursor:pointer;color:var(--charcoal);font-size:14px;flex-shrink:0">
+      <i class="fas fa-search"></i>
+    </button>
+  </form>
+
+  <div style="display:flex;gap:8px;width:100%;flex-shrink:0">
+    <a href="{{ url_for('wishlist') }}" onclick="toggleMobileMenu()"
+      style="flex:1;min-width:0;padding:10px 4px;background:var(--ivory);text-align:center;font-family:var(--font-sans);font-size:10px;letter-spacing:1px;color:var(--charcoal);border:1px solid rgba(201,168,76,0.3)">
+      <i class="fas fa-heart" style="display:block;font-size:17px;margin-bottom:3px;color:var(--crimson)"></i>
+      Wishlist{% if wishlist_count > 0 %} ({{ wishlist_count }}){% endif %}
+    </a>
+    <a href="{{ url_for('cart') }}" onclick="toggleMobileMenu()"
+      style="flex:1;min-width:0;padding:10px 4px;background:var(--ivory);text-align:center;font-family:var(--font-sans);font-size:10px;letter-spacing:1px;color:var(--charcoal);border:1px solid rgba(201,168,76,0.3)">
+      <i class="fas fa-shopping-bag" style="display:block;font-size:17px;margin-bottom:3px;color:var(--gold-dark)"></i>
+      Cart ({{ cart_count }})
+    </a>
+    {% if current_user %}
+    <a href="{{ url_for('profile') }}" onclick="toggleMobileMenu()"
+      style="flex:1;min-width:0;padding:10px 4px;background:var(--ivory);text-align:center;font-family:var(--font-sans);font-size:10px;letter-spacing:1px;color:var(--charcoal);border:1px solid rgba(201,168,76,0.3)">
+      <i class="fas fa-user-circle" style="display:block;font-size:17px;margin-bottom:3px"></i>
+      Profile
+    </a>
+    {% else %}
+    <a href="{{ url_for('login') }}" onclick="toggleMobileMenu()"
+      style="flex:1;min-width:0;padding:10px 4px;background:var(--crimson);text-align:center;font-family:var(--font-sans);font-size:10px;letter-spacing:1px;color:white">
+      <i class="fas fa-user" style="display:block;font-size:17px;margin-bottom:3px"></i>
+      Login
+    </a>
+    {% endif %}
+  </div>
+
+  <a href="{{ url_for('index') }}" onclick="toggleMobileMenu()">Home</a>
+  <a href="{{ url_for('collections') }}" onclick="toggleMobileMenu()">Collections</a>
+  <a href="{{ url_for('all_products') }}" onclick="toggleMobileMenu()">Shop All</a>
+  <a href="{{ url_for('wedding_collection') }}" onclick="toggleMobileMenu()" style="color:var(--crimson)">💍 Wedding</a>
+  <a href="{{ url_for('new_arrivals') }}" onclick="toggleMobileMenu()">New Arrivals</a>
+  <a href="{{ url_for('customize') }}" onclick="toggleMobileMenu()">Customize</a>
+  <a href="{{ url_for('about') }}" onclick="toggleMobileMenu()">About</a>
+  <a href="{{ url_for('contact') }}" onclick="toggleMobileMenu()">Contact</a>
+  {% if current_user %}
+  <a href="{{ url_for('track_order') }}" onclick="toggleMobileMenu()">Track Order</a>
+  <a href="{{ url_for('logout') }}" onclick="toggleMobileMenu()" style="color:var(--crimson)">Logout</a>
+  {% endif %}
+</div>
+
+<div class="flash-container" id="flashContainer">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for cat, msg in messages %}
+      {% if cat != 'order_success' %}
+      <div class="flash-msg {{ cat }}" onclick="this.remove()">{{ msg|safe }}</div>
+      {% endif %}
+    {% endfor %}
+  {% endwith %}
+</div>
+
+{% block content %}{% endblock %}
+
+<footer>
+  <div class="footer-top">
+    <div class="footer-brand">
+      <div class="logo-name">VIVAH</div>
+      <div class="tagline">Celebrating the Art of Sarees</div>
+      <p>We curate the finest Indian sarees — from heirloom Patola and Gharchola to contemporary designer drapes — for the woman who celebrates her culture with pride and grace.</p>
+      <div class="footer-social">
+        <a href="#"><i class="fab fa-instagram"></i></a>
+        <a href="#"><i class="fab fa-facebook-f"></i></a>
+        <a href="#"><i class="fab fa-pinterest-p"></i></a>
+        <a href="#"><i class="fab fa-whatsapp"></i></a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h4>Collections</h4>
+      <ul>
+        <li><a href="{{ url_for('wedding_collection') }}">Wedding Sarees</a></li>
+        <li><a href="{{ url_for('collection_detail', slug='patola-sarees') }}">Patola Sarees</a></li>
+        <li><a href="{{ url_for('collection_detail', slug='gharchola-sarees') }}">Gharchola</a></li>
+        <li><a href="{{ url_for('collection_detail', slug='bandhni-sarees') }}">Bandhni</a></li>
+        <li><a href="{{ url_for('collection_detail', slug='leheriya-sarees') }}">Leheriya</a></li>
+        <li><a href="{{ url_for('new_arrivals') }}">New Arrivals</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Help</h4>
+      <ul>
+        <li><a href="{{ url_for('about') }}">About Vivah</a></li>
+        <li><a href="{{ url_for('contact') }}">Contact Us</a></li>
+        <li><a href="{{ url_for('customize') }}">Custom Sarees</a></li>
+        <li><a href="{{ url_for('track_order') }}">Track Order</a></li>
+        <li><a href="#">Shipping Policy</a></li>
+        <li><a href="#">Returns & Exchange</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4 style="font-family:var(--font-sans);font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--gold-light);margin-bottom:18px;padding-bottom:10px;border-bottom:1px solid rgba(201,168,76,0.2);">Newsletter</h4>
+      <p style="font-size:14px;margin-bottom:14px;">Subscribe for exclusive offers and new arrivals.</p>
+      <div class="newsletter-form">
+        <input type="email" id="newsletterEmail" placeholder="Your email address" />
+        <button onclick="subscribeNewsletter()"><i class="fas fa-arrow-right"></i></button>
+      </div>
+      <p style="margin-top:14px;font-size:12px;color:rgba(255,255,255,0.5);">
+        <i class="fas fa-map-marker-alt" style="color:var(--gold);margin-right:6px;"></i>Ahmedabad, Gujarat, India<br/>
+        <i class="fas fa-phone" style="color:var(--gold);margin-right:6px;"></i>+91 98765 43210
+      </p>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 Vivah Sarees. All rights reserved.</span>
+    <span style="color:rgba(255,255,255,0.18);font-style:italic;font-size:11px;letter-spacing:1px">Those who know, know. 🤫</span>
+    <div class="footer-bottom-links">
+      <a href="#">Privacy Policy</a>
+      <a href="#">Terms</a>
+      <a href="{{ url_for('track_order') }}">Track Order</a>
+      <a href="{{ url_for('admin') }}">Admin</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  window.addEventListener('scroll', () =>
+    document.getElementById('navbar').classList.toggle('scrolled', scrollY > 50)
+  );
+
+  function toggleMobileMenu() {
+    const menu = document.getElementById('mobileMenu');
+    const isOpen = menu.classList.toggle('open');
+    document.body.style.overflow = isOpen ? 'hidden' : '';
+  }
+
+  // Close menu if user clicks outside of it (on the dimmed page behind)
+  document.getElementById('mobileMenu').addEventListener('click', function(e) {
+    if (e.target === this) toggleMobileMenu();
+  });
+
+  setTimeout(() => document.querySelectorAll('.flash-msg').forEach(e => e.remove()), 6000);
+
+  function subscribeNewsletter() {
+    const email = document.getElementById('newsletterEmail').value;
+    if (!email) return;
+    fetch('/newsletter', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+      body: 'email=' + encodeURIComponent(email)
+    }).then(r => r.json()).then(d => {
+      const c = document.getElementById('flashContainer');
+      const m = document.createElement('div');
+      m.className = 'flash-msg ' + (d.success ? 'success' : '');
+      m.textContent = d.message;
+      c.appendChild(m);
+      setTimeout(() => m.remove(), 4000);
+      if (d.success) document.getElementById('newsletterEmail').value = '';
+    });
+  }
+
+  function addToCart(id) {
+    let colorParam = window.selectedColor ? '?color=' + encodeURIComponent(window.selectedColor) : '';
+    fetch('/cart/add/' + id + colorParam, {method: 'POST'}).then(r => r.json()).then(d => {
+      const c = document.getElementById('flashContainer');
+      const m = document.createElement('div');
+      m.className = 'flash-msg success';
+      m.textContent = d.message;
+      c.appendChild(m);
+      setTimeout(() => m.remove(), 3000);
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.product-card').forEach(function (card) {
+      const viewBtn = card.querySelector('[onclick*="/product/"]');
+      if (!viewBtn) return;
+      const match = viewBtn.getAttribute('onclick').match(/\/product\/(\d+)/);
+      if (!match) return;
+      const url = '/product/' + match[1];
+      card.addEventListener('click', function (e) {
+        if (e.target.closest('button') || e.target.closest('a')) return;
+        window.location.href = url;
+      });
+    });
+  });
+
+  (function () {
+    const input = document.getElementById('navSearchInput');
+    if (!input) return;
+    const suggestions = [
+      'Red Bridal Saree','Red Silk Saree','Red Banarasi Saree',
+      'Maroon Bridal Saree','Maroon Silk Saree',
+      'Gold Saree','Gold Banarasi Saree','Gold Kanjivaram Saree',
+      'Pink Saree','Pink Chiffon Saree','Pink Silk Saree',
+      'Green Saree','Green Bandhani Saree','Green Georgette Saree',
+      'Blue Saree','Royal Blue Silk Saree','Navy Blue Saree',
+      'Yellow Saree','Yellow Haldi Saree','Mustard Saree',
+      'Orange Saree','Orange Bandhani Saree',
+      'Purple Saree','Purple Velvet Saree',
+      'White Saree','White Organza Saree',
+      'Silk Saree','Pure Silk Saree','Kanjivaram Silk Saree',
+      'Banarasi Saree','Banarasi Silk Saree',
+      'Chiffon Saree','Georgette Saree','Net Saree',
+      'Organza Saree','Velvet Saree','Tissue Saree',
+      'Bandhani Saree','Patola Saree','Gharchola Saree',
+      'Panetar Saree','Ajarakh Saree','Kalamkari Saree',
+      'Bridal Saree','Wedding Saree','Bride Saree',
+      'Sangeet Saree','Reception Saree','Haldi Saree',
+      'Mehendi Saree','Party Saree','Festive Saree',
+      'Designer Saree','Heavy Saree','Light Saree',
+      'Embroidered Saree','Zari Saree','Stone Work Saree',
+    ];
+    const wrapper = input.closest('form');
+    wrapper.style.position = 'relative';
+    const dropdown = document.createElement('div');
+    dropdown.style.cssText = 'display:none;position:absolute;top:100%;left:0;right:0;background:white;border:1.5px solid rgba(201,168,76,0.5);border-top:none;z-index:9999;max-height:280px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,0.12);';
+    wrapper.appendChild(dropdown);
+    input.addEventListener('input', function () {
+      const val = this.value.trim().toLowerCase();
+      if (val.length < 2) { dropdown.style.display = 'none'; return; }
+      const matches = suggestions.filter(s => s.toLowerCase().includes(val)).slice(0, 8);
+      if (!matches.length) { dropdown.style.display = 'none'; return; }
+      dropdown.innerHTML = matches.map(s => {
+        const hi = s.replace(new RegExp('(' + val + ')', 'gi'), '<strong style="color:var(--crimson)">$1</strong>');
+        return `<div onclick="doSearch('${s}')" style="padding:10px 16px;font-family:var(--font-sans);font-size:13px;color:var(--charcoal);cursor:pointer;border-bottom:1px solid var(--ivory-dark);display:flex;align-items:center;gap:10px;" onmouseover="this.style.background='var(--ivory)'" onmouseout="this.style.background=''"><i class="fas fa-search" style="color:var(--gold);font-size:11px;width:14px"></i>${hi}</div>`;
+      }).join('');
+      dropdown.style.display = 'block';
+    });
+    function doSearch(term) {
+      input.value = term;
+      dropdown.style.display = 'none';
+      input.closest('form').submit();
+    }
+    window.doSearch = doSearch;
+    document.addEventListener('click', function (e) {
+      if (!wrapper.contains(e.target)) dropdown.style.display = 'none';
+    });
+    input.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') dropdown.style.display = 'none';
+    });
+  })();
+
+  (function () {
+    const SECRET = 'VIVAH';
+    let typed = '', triggered = false;
+    document.addEventListener('keydown', function (e) {
+      if (triggered) return;
+      const tag = document.activeElement.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+      typed += e.key.toUpperCase();
+      if (typed.length > SECRET.length) typed = typed.slice(-SECRET.length);
+      if (typed === SECRET) { triggered = true; launchVaultSequence(); }
+    });
+    function launchVaultSequence() {
+      const dimmer = document.createElement('div');
+      dimmer.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0);z-index:99990;transition:background 0.8s;pointer-events:none';
+      document.body.appendChild(dimmer);
+      requestAnimationFrame(() => { dimmer.style.background = 'rgba(0,0,0,0.85)'; });
+      setTimeout(() => {
+        const shimmer = document.createElement('div');
+        shimmer.style.cssText = 'position:fixed;top:0;left:-100%;width:60%;height:100%;background:linear-gradient(90deg,transparent,rgba(201,168,76,0.25),transparent);z-index:99991;animation:shimmerWave 1s ease-out forwards;pointer-events:none';
+        document.head.insertAdjacentHTML('beforeend', '<style>@keyframes shimmerWave{0%{left:-60%}100%{left:110%}}</style>');
+        document.body.appendChild(shimmer);
+        setTimeout(() => shimmer.remove(), 1100);
+      }, 600);
+      setTimeout(() => {
+        const overlay = document.createElement('div');
+        overlay.style.cssText = 'position:fixed;inset:0;z-index:99992;display:flex;align-items:center;justify-content:center;flex-direction:column;background:radial-gradient(ellipse at center,#1a0010 0%,#0a0005 100%);text-align:center;padding:40px;';
+        overlay.innerHTML = `
+          <div style="font-size:52px;margin-bottom:24px;animation:diyaFlicker 1.5s ease-in-out infinite">🪔</div>
+          <div id="whisperLine1" style="font-family:'Cinzel',serif;font-size:clamp(18px,3vw,32px);color:rgba(201,168,76,0.8);letter-spacing:6px;margin-bottom:12px;min-height:48px"></div>
+          <div id="whisperLine2" style="font-family:'Cinzel',serif;font-size:clamp(22px,4vw,48px);color:#f0d080;letter-spacing:5px;text-shadow:0 0 40px rgba(201,168,76,0.8);min-height:64px"></div>
+          <style>@keyframes diyaFlicker{0%,100%{filter:brightness(1) drop-shadow(0 0 12px rgba(255,180,0,0.8))}50%{filter:brightness(1.4) drop-shadow(0 0 28px rgba(255,180,0,1))}}</style>
+        `;
+        document.body.appendChild(overlay);
+        typeLetters('whisperLine1', 'You found our secret...', 70, () => {
+          setTimeout(() => {
+            typeLetters('whisperLine2', 'Welcome to The Vivah Vault 🔐', 60, () => {
+              setTimeout(() => {
+                overlay.style.transition = 'opacity 0.8s';
+                overlay.style.opacity = '0';
+                setTimeout(() => { window.location.href = '/vivah-vault'; }, 800);
+              }, 1200);
+            });
+          }, 400);
+        });
+      }, 1200);
+    }
+    function typeLetters(elId, text, speed, cb) {
+      const el = document.getElementById(elId);
+      if (!el) return;
+      let i = 0;
+      const iv = setInterval(() => {
+        el.textContent += text[i++];
+        if (i >= text.length) { clearInterval(iv); if (cb) cb(); }
+      }, speed);
+    }
+  })();
+</script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

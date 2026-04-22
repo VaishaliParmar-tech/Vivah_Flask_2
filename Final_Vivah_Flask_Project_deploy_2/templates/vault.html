@@ -1,0 +1,372 @@
+{% extends "base.html" %}
+{% block title %}The Vivah Vault 🔐{% endblock %}
+
+{% block extra_head %}
+<style>
+  body { overflow-x: hidden; }
+  .vault-page {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #0a0005 0%, #1a0010 40%, #0d0008 100%);
+    position: relative;
+    overflow: hidden;
+  }
+  .vault-particles {
+    position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  }
+  .vault-particle {
+    position: absolute;
+    width: 2px; height: 2px;
+    background: var(--gold);
+    border-radius: 50%;
+    animation: floatUp linear infinite;
+    opacity: 0;
+  }
+  @keyframes floatUp {
+    0%   { opacity: 0; transform: translateY(0) scale(1); }
+    10%  { opacity: 1; }
+    90%  { opacity: 0.6; }
+    100% { opacity: 0; transform: translateY(-100vh) scale(0.3); }
+  }
+  .vault-hero {
+    text-align: center;
+    padding: 80px 40px 50px;
+    position: relative; z-index: 1;
+  }
+  .vault-lock-icon {
+    font-size: 64px;
+    color: var(--gold);
+    margin-bottom: 20px;
+    display: block;
+    animation: lockPulse 2s ease-in-out infinite;
+    text-shadow: 0 0 30px rgba(201,168,76,0.8);
+  }
+  @keyframes lockPulse {
+    0%, 100% { transform: scale(1); text-shadow: 0 0 30px rgba(201,168,76,0.6); }
+    50% { transform: scale(1.08); text-shadow: 0 0 60px rgba(201,168,76,1); }
+  }
+  .vault-title {
+    font-family: var(--font-heading);
+    font-size: clamp(32px, 6vw, 64px);
+    color: var(--gold-light);
+    letter-spacing: 5px;
+    margin-bottom: 12px;
+    text-shadow: 0 0 40px rgba(201,168,76,0.5);
+  }
+  .vault-subtitle {
+    font-family: var(--font-body);
+    font-size: 18px;
+    color: rgba(255,255,255,0.6);
+    font-style: italic;
+    margin-bottom: 30px;
+  }
+  .vault-timer-wrap {
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+    background: rgba(201,168,76,0.1);
+    border: 1px solid rgba(201,168,76,0.4);
+    padding: 14px 28px;
+    margin-bottom: 16px;
+  }
+  .vault-timer-label {
+    font-family: var(--font-sans);
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+  .vault-timer {
+    font-family: var(--font-heading);
+    font-size: 32px;
+    color: var(--gold-light);
+    letter-spacing: 4px;
+    text-shadow: 0 0 20px rgba(201,168,76,0.8);
+    min-width: 80px;
+  }
+  .vault-timer.urgent { color: #ff4444; text-shadow: 0 0 20px rgba(255,68,68,0.8); animation: urgentBlink 0.5s ease-in-out infinite; }
+  @keyframes urgentBlink { 0%,100%{opacity:1} 50%{opacity:0.5} }
+  .vault-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: linear-gradient(135deg, var(--gold-dark), var(--gold), var(--gold-light));
+    color: var(--charcoal);
+    font-family: var(--font-sans);
+    font-size: 9px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-weight: 800;
+    padding: 4px 12px;
+    margin-bottom: 6px;
+  }
+  .vault-products {
+    position: relative; z-index: 1;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 40px 80px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 28px;
+  }
+  .vault-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(201,168,76,0.25);
+    overflow: hidden;
+    transition: all 0.4s;
+    position: relative;
+  }
+  .vault-card:hover {
+    border-color: var(--gold);
+    transform: translateY(-6px);
+    box-shadow: 0 20px 60px rgba(201,168,76,0.2);
+  }
+  .vault-card-img {
+    aspect-ratio: 3/4;
+    overflow: hidden;
+    position: relative;
+  }
+  .vault-card-img img { width:100%; height:100%; object-fit:cover; transition: transform 0.6s; }
+  .vault-card:hover .vault-card-img img { transform: scale(1.06); }
+  .vault-exclusive-badge {
+    position: absolute;
+    top: 12px; left: 12px;
+    background: linear-gradient(135deg, var(--gold-dark), var(--gold));
+    color: var(--charcoal);
+    font-family: var(--font-sans);
+    font-size: 8px;
+    letter-spacing: 2px;
+    font-weight: 800;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    display: flex; align-items: center; gap: 4px;
+  }
+  .vault-card-info { padding: 18px; }
+  .vault-card-name {
+    font-family: var(--font-heading);
+    font-size: 18px;
+    color: var(--gold-light);
+    margin-bottom: 8px;
+    letter-spacing: 1px;
+  }
+  .vault-card-fabric {
+    font-family: var(--font-sans);
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: rgba(255,255,255,0.4);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .vault-price-row { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+  .vault-price { font-size: 22px; color: var(--gold); font-weight: 700; }
+  .vault-original { font-size: 15px; color: rgba(255,255,255,0.3); text-decoration: line-through; }
+  .vault-discount-tag {
+    background: rgba(139,26,26,0.6);
+    color: #ff9999;
+    font-family: var(--font-sans);
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 8px;
+    letter-spacing: 1px;
+  }
+  .vault-actions { display: flex; gap: 10px; }
+  .vault-btn {
+    flex: 1; padding: 11px;
+    font-family: var(--font-sans);
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-align: center;
+    text-decoration: none;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+  }
+  .vault-btn-primary { background: linear-gradient(135deg,var(--gold-dark),var(--gold)); color: var(--charcoal); }
+  .vault-btn-primary:hover { filter: brightness(1.15); }
+  .vault-btn-secondary { background: transparent; border: 1px solid rgba(201,168,76,0.5); color: var(--gold-light); }
+  .vault-btn-secondary:hover { border-color: var(--gold); background: rgba(201,168,76,0.1); }
+  .vault-empty {
+    text-align: center;
+    padding: 80px 40px;
+    color: rgba(255,255,255,0.4);
+    position: relative; z-index:1;
+    grid-column: 1/-1;
+  }
+  .vault-closed-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.97);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    flex-direction: column;
+  }
+  .vault-closed-overlay.active { display: flex; }
+  .vault-closed-text {
+    font-family: var(--font-heading);
+    font-size: clamp(24px,4vw,48px);
+    color: var(--gold-light);
+    letter-spacing: 4px;
+    margin-bottom: 16px;
+    animation: fadeInUp 1s ease;
+  }
+  .vault-closed-sub {
+    font-family: var(--font-body);
+    font-size: 18px;
+    color: rgba(255,255,255,0.5);
+    font-style: italic;
+    animation: fadeInUp 1s ease 0.3s both;
+  }
+  @keyframes fadeInUp { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes rippleGold {
+    0%   { opacity: 0.8; transform: scale(0.5); }
+    100% { opacity: 0; transform: scale(3); }
+  }
+  .vault-ripple {
+    position: fixed;
+    width: 200px; height: 200px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(201,168,76,0.6) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 99998;
+    transform: translate(-50%,-50%);
+    animation: rippleGold 1.2s ease-out forwards;
+  }
+  @media(max-width:700px){ .vault-products{padding:0 20px 60px;grid-template-columns:1fr 1fr} .vault-hero{padding:60px 20px 40px} }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="vault-page">
+  <!-- Floating gold particles -->
+  <div class="vault-particles" id="vaultParticles"></div>
+
+  <div class="vault-hero">
+    <i class="fas fa-lock vault-lock-icon"></i>
+    <div class="section-label" style="color:var(--gold);letter-spacing:5px">✦ You Found Our Secret ✦</div>
+    <h1 class="vault-title">The Vivah Vault</h1>
+    <p class="vault-subtitle">Exclusive sarees — unseen, unannounced, unlocked only for those who know</p>
+
+    <div class="vault-timer-wrap">
+      <i class="fas fa-hourglass-half" style="color:var(--gold);font-size:18px"></i>
+      <span class="vault-timer-label">Vault Closes In</span>
+      <span class="vault-timer" id="vaultTimer">10:00</span>
+    </div>
+    <div style="font-family:var(--font-sans);font-size:11px;letter-spacing:2px;color:rgba(255,255,255,0.3);margin-top:8px">
+      Press <kbd style="background:rgba(201,168,76,0.2);border:1px solid rgba(201,168,76,0.4);padding:2px 8px;color:var(--gold);font-size:11px">ESC</kbd> to return anytime
+    </div>
+  </div>
+
+  <!-- Products Grid -->
+  <div class="vault-products">
+    {% if products %}
+      {% for p in products %}
+      <div class="vault-card">
+        <div class="vault-card-img">
+          {% if p.image %}
+            <img src="{{ url_for('static', filename='images/products/' + p.image) }}" alt="{{ p.name }}" />
+          {% else %}
+            <div style="height:100%;display:flex;align-items:center;justify-content:center;font-size:60px;background:rgba(201,168,76,0.05)">🥻</div>
+          {% endif %}
+          <div class="vault-exclusive-badge"><i class="fas fa-lock" style="font-size:7px"></i> Vault Exclusive</div>
+        </div>
+        <div class="vault-card-info">
+          <div class="vault-card-name">{{ p.name }}</div>
+          {% if p.fabric %}<div class="vault-card-fabric">{{ p.fabric }}{% if p.color %} · {{ p.color }}{% endif %}</div>{% endif %}
+          <div class="vault-price-row">
+            <span class="vault-price">₹{{ "{:,.0f}".format(p.price * 0.85) }}</span>
+            <span class="vault-original">₹{{ "{:,.0f}".format(p.price) }}</span>
+            <span class="vault-discount-tag">15% OFF</span>
+          </div>
+          <div class="vault-actions">
+            <button class="vault-btn vault-btn-primary" onclick="addToCart({{ p.id }})">
+              <i class="fas fa-bag-shopping"></i> Add to Bag
+            </button>
+            <a href="/product/{{ p.id }}" class="vault-btn vault-btn-secondary">View</a>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <div class="vault-empty">
+        <i class="fas fa-gem" style="font-size:64px;color:var(--gold);display:block;margin-bottom:20px;opacity:0.5"></i>
+        <h3 style="font-family:var(--font-heading);font-size:28px;color:var(--gold-light);margin-bottom:12px">The Vault is being restocked...</h3>
+        <p style="font-style:italic">New exclusives coming soon. You were brave to look.</p>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Vault Closed Overlay -->
+<div class="vault-closed-overlay" id="vaultClosedOverlay">
+  <div>
+    <i class="fas fa-lock" style="font-size:80px;color:var(--gold);display:block;margin-bottom:28px;opacity:0.7;animation:lockPulse 2s infinite"></i>
+    <div class="vault-closed-text">The Vault is Closed.</div>
+    <div class="vault-closed-sub">Come back and whisper our name again... 🤫</div>
+    <button onclick="window.location='/'" style="margin-top:36px;background:transparent;border:1px solid rgba(201,168,76,0.5);color:var(--gold-light);font-family:var(--font-sans);font-size:11px;letter-spacing:3px;text-transform:uppercase;padding:14px 36px;cursor:pointer;transition:all 0.3s" onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='rgba(201,168,76,0.5)'">
+      Return Home
+    </button>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// ── Vault Timer ────────────────────────────────
+let vaultSeconds = 600;
+const timerEl = document.getElementById('vaultTimer');
+const vaultInterval = setInterval(() => {
+  vaultSeconds--;
+  const m = Math.floor(vaultSeconds / 60).toString().padStart(2,'0');
+  const s = (vaultSeconds % 60).toString().padStart(2,'0');
+  timerEl.textContent = m + ':' + s;
+  if (vaultSeconds <= 60) timerEl.classList.add('urgent');
+  if (vaultSeconds <= 0) {
+    clearInterval(vaultInterval);
+    closeVault();
+  }
+}, 1000);
+
+// ── ESC to close ────────────────────────────────
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeVault();
+});
+
+function closeVault() {
+  createRipple(window.innerWidth/2, window.innerHeight/2);
+  setTimeout(() => {
+    document.getElementById('vaultClosedOverlay').classList.add('active');
+  }, 600);
+}
+
+// ── Gold particles ──────────────────────────────
+const container = document.getElementById('vaultParticles');
+for (let i = 0; i < 40; i++) {
+  const p = document.createElement('div');
+  p.className = 'vault-particle';
+  p.style.cssText = `
+    left: ${Math.random() * 100}%;
+    bottom: ${Math.random() * 20}%;
+    width: ${Math.random() * 3 + 1}px;
+    height: ${Math.random() * 3 + 1}px;
+    animation-duration: ${Math.random() * 8 + 6}s;
+    animation-delay: ${Math.random() * 5}s;
+  `;
+  container.appendChild(p);
+}
+
+// ── Ripple effect ───────────────────────────────
+function createRipple(x, y) {
+  const r = document.createElement('div');
+  r.className = 'vault-ripple';
+  r.style.left = x + 'px';
+  r.style.top = y + 'px';
+  document.body.appendChild(r);
+  setTimeout(() => r.remove(), 1200);
+}
+document.addEventListener('click', e => createRipple(e.clientX, e.clientY));
+</script>
+{% endblock %}

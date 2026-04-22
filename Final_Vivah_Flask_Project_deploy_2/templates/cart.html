@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+{% block title %}Shopping Bag – Vivah{% endblock %}
+{% block extra_head %}
+<style>
+.coupon-box{border:2px dashed rgba(201,168,76,0.4);padding:20px;background:var(--ivory);margin-bottom:20px}
+.coupon-box h4{font-family:var(--font-sans);font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--gold-dark);margin-bottom:12px}
+.coupon-input-row{display:flex;gap:0}
+.coupon-input{flex:1;padding:11px 15px;border:1.5px solid rgba(201,168,76,0.3);background:white;font-family:var(--font-body);font-size:15px;outline:none;border-right:none}
+.coupon-input:focus{border-color:var(--gold)}
+.coupon-apply-btn{padding:11px 18px;background:var(--crimson);color:var(--gold-light);font-family:var(--font-sans);font-size:11px;letter-spacing:2px;font-weight:700;border:none;cursor:pointer;transition:all 0.2s;text-transform:uppercase;white-space:nowrap}
+.coupon-apply-btn:hover{background:var(--crimson-light)}
+.coupon-success{background:#E8F5E9;border:1px solid #A5D6A7;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;margin-top:10px;font-family:var(--font-sans);font-size:12px;color:#2E7D32}
+.coupon-remove{cursor:pointer;color:var(--crimson);font-size:14px;margin-left:8px}
+.offer-tags{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px}
+.offer-tag{padding:5px 12px;background:rgba(139,26,26,0.08);border:1px dashed var(--crimson);font-family:var(--font-sans);font-size:10px;letter-spacing:1px;color:var(--crimson);cursor:pointer;transition:all 0.2s}
+.offer-tag:hover{background:var(--crimson);color:white}
+</style>
+{% endblock %}
+{% block content %}
+<div style="background:var(--ivory-dark);padding:36px 40px;text-align:center">
+  <h1 style="font-family:var(--font-heading);font-size:38px;color:var(--crimson);letter-spacing:3px">Your Shopping Bag</h1>
+  <div class="section-divider"></div>
+</div>
+
+<section class="section">
+  <div class="container">
+    {% if cart_products %}
+    <div style="display:grid;grid-template-columns:1fr 360px;gap:32px;align-items:start">
+
+      <!-- Items -->
+      <div>
+        {% for item in cart_products %}
+        <div style="display:grid;grid-template-columns:110px 1fr auto;gap:18px;align-items:center;padding:20px 0;border-bottom:1px solid var(--ivory-dark)">
+          <div style="aspect-ratio:3/4;background:var(--ivory-dark);overflow:hidden">
+            {% if item.product.image %}<img src="{{ url_for('static', filename='images/products/' + item.product.image) }}" style="width:100%;height:100%;object-fit:cover" />
+            {% else %}<div style="height:100%;display:flex;align-items:center;justify-content:center;font-size:28px">🥻</div>{% endif %}
+          </div>
+          <div>
+            <h3 style="font-family:var(--font-heading);font-size:18px;color:var(--charcoal);margin-bottom:5px">{{ item.product.name }}</h3>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              {% if item.product.fabric %}<span class="product-fabric-tag">{{ item.product.fabric }}</span>{% endif %}
+              {% if item.color %}<span class="product-fabric-tag">Color: {{ item.color }}</span>{% endif %}
+            </div>
+            <div style="display:flex;align-items:center;gap:12px;margin-top:10px">
+              <span style="font-size:20px;color:var(--crimson);font-weight:600">₹{{ "{:,.0f}".format(item.product.price * item.qty) }}</span>
+              <span style="font-family:var(--font-sans);font-size:12px;color:var(--warm-gray)">× {{ item.qty }}</span>
+            </div>
+          </div>
+          <form action="{{ url_for('remove_from_cart', id=item.product.id) }}{{ '?color=' ~ item.color|urlencode if item.color else '' }}" method="POST">
+            <button style="background:none;border:1px solid #ffcdd2;padding:8px 12px;cursor:pointer;color:var(--crimson)" type="submit"><i class="fas fa-trash"></i></button>
+          </form>
+        </div>
+        {% endfor %}
+      </div>
+
+      <!-- Summary -->
+      <div>
+        <!-- Coupon box -->
+        <div class="coupon-box">
+          <h4><i class="fas fa-tag" style="margin-right:6px;color:var(--gold)"></i>Apply Coupon Code</h4>
+          {% if coupon %}
+          <div class="coupon-success">
+            <span><i class="fas fa-check-circle" style="margin-right:6px"></i><strong>{{ coupon.label }}</strong> applied — Save ₹{{ "{:,.0f}".format(coupon.discount) }}</span>
+            <span class="coupon-remove" onclick="removeCoupon()" title="Remove coupon">✕</span>
+          </div>
+          {% else %}
+          <div class="coupon-input-row">
+            <input type="text" id="couponCode" class="coupon-input" placeholder="Enter coupon code" style="text-transform:uppercase" />
+            <button class="coupon-apply-btn" onclick="applyCoupon()"><i class="fas fa-tag"></i> Apply</button>
+          </div>
+          <div class="offer-tags">
+            <span class="offer-tag" onclick="fillCoupon('VIVAH20')">VIVAH20 — 20% OFF</span>
+            <span class="offer-tag" onclick="fillCoupon('WELCOME10')">WELCOME10 — 10% OFF</span>
+            <span class="offer-tag" onclick="fillCoupon('FLAT500')">FLAT500 — ₹500 OFF</span>
+          </div>
+          {% endif %}
+          <div id="couponMsg" style="margin-top:8px;font-family:var(--font-sans);font-size:12px;display:none"></div>
+        </div>
+
+        <!-- Order total card -->
+        <div style="background:white;padding:26px;box-shadow:var(--shadow)">
+          <h3 style="font-family:var(--font-heading);font-size:20px;color:var(--charcoal);margin-bottom:18px;letter-spacing:2px">Order Summary</h3>
+          <div style="display:flex;justify-content:space-between;margin-bottom:10px;font-size:15px"><span>Subtotal</span><span>₹{{ "{:,.0f}".format(subtotal) }}</span></div>
+          {% if discount > 0 %}
+          <div style="display:flex;justify-content:space-between;margin-bottom:10px;font-size:15px;color:#2E7D32"><span>Discount <small>({{ coupon.label if coupon else '' }})</small></span><span>– ₹{{ "{:,.0f}".format(discount) }}</span></div>
+          {% endif %}
+          <div style="display:flex;justify-content:space-between;margin-bottom:10px;font-size:15px;color:green"><span>Shipping</span><span>{{ 'Free' if total >= 2999 else '₹199' }}</span></div>
+          <hr style="border:none;border-top:1px solid var(--ivory-dark);margin:14px 0" />
+          <div style="display:flex;justify-content:space-between;font-size:22px;font-weight:600;color:var(--crimson);margin-bottom:22px"><span>Total</span><span>₹{{ "{:,.0f}".format(total + (0 if total >= 2999 else 199)) }}</span></div>
+          <a href="{{ url_for('checkout') }}" class="btn btn-crimson" style="width:100%;justify-content:center;display:flex;padding:14px"><i class="fas fa-lock"></i>&nbsp;Proceed to Checkout</a>
+          <a href="{{ url_for('all_products') }}" class="btn btn-outline" style="width:100%;justify-content:center;display:flex;margin-top:10px">Continue Shopping</a>
+          {% if not current_user %}<p style="text-align:center;margin-top:12px;font-family:var(--font-sans);font-size:12px;color:var(--warm-gray)">Need to <a href="{{ url_for('login', next=url_for('checkout')) }}" style="color:var(--crimson)">login</a> to checkout.</p>{% endif %}
+        </div>
+      </div>
+    </div>
+
+    {% else %}
+    <div style="text-align:center;padding:80px 20px">
+      <i class="fas fa-shopping-bag" style="font-size:72px;color:var(--gold);display:block;margin-bottom:20px"></i>
+      <h3 style="font-family:var(--font-heading);font-size:30px;color:var(--charcoal);margin-bottom:12px">Your Bag is Empty</h3>
+      <p style="color:var(--warm-gray);margin-bottom:28px">Explore our beautiful sarees and find your perfect drape.</p>
+      <a href="{{ url_for('all_products') }}" class="btn btn-gold">Shop All Sarees</a>
+    </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function fillCoupon(code) {
+  document.getElementById('couponCode').value = code;
+  applyCoupon();
+}
+
+function applyCoupon() {
+  const code = document.getElementById('couponCode').value.trim().toUpperCase();
+  if (!code) return;
+  const subtotal = {{ subtotal }};
+  fetch('/coupon/apply', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({code: code, total: subtotal})
+  })
+  .then(r => r.json())
+  .then(d => {
+    const msg = document.getElementById('couponMsg');
+    msg.style.display = 'block';
+    msg.style.color = d.success ? '#2E7D32' : 'var(--crimson)';
+    msg.innerHTML = (d.success ? '<i class="fas fa-check-circle"></i> ' : '<i class="fas fa-times-circle"></i> ') + d.message;
+    if (d.success) setTimeout(() => location.reload(), 800);
+  });
+}
+
+function removeCoupon() {
+  fetch('/coupon/remove', {method: 'POST'})
+  .then(r => r.json())
+  .then(() => location.reload());
+}
+</script>
+{% endblock %}
