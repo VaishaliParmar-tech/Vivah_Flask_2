@@ -1150,39 +1150,53 @@ def init_db():
             
             all_cats = Category.query.all()
             excluded_cats = ['Kanjivaram Sarees', 'Bridal Collection', 'Silk Sarees', 'Leheriya Sarees']
-            all_new_products = []
+            # Category-specific color palettes
+            color_palettes = {
+                'Bandhani Sarees': ["Ruby Red", "Maroon", "Emerald Green", "Deep Yellow"],
+                'Patola Sarees': ["Indigo Blue", "Rust Orange", "Mustard Yellow", "Black"],
+                'Gharchola Sarees': ["Bridal Red", "Maroon", "Gold"],
+                'Panetar Sarees': ["Pearl White", "Ivory", "Red"],
+                'Ajrakh Sarees': ["Indigo Blue", "Madder Red", "Charcoal Black"],
+                'Banarasi Sarees': ["Royal Blue", "Golden Ochre", "Crimson Red", "Emerald"],
+                'Organza Sarees': ["Pastel Pink", "Sky Blue", "Mint Green", "Lavender"],
+                'Chiffon Sarees': ["Turquoise", "Coral", "Peach", "Aqua"],
+                'Net Sarees': ["Silver", "Midnight Black", "Champagne Gold"],
+                'Velvet Sarees': ["Deep Purple", "Wine Red", "Navy Blue"],
+                'Tissue Sarees': ["Glimmering Gold", "Copper", "Rose Gold"],
+                'Kalamkari Sarees': ["Beige", "Earth Brown", "Olive Green"],
+                'Digital Print': ["Multicolor", "Floral Pink", "Abstract Blue"],
+                'Designer Sarees': ["Unique Teal", "Sunset Orange", "Electric Blue"]
+            }
             
+            all_new_products = []
             for cat in all_cats:
                 if cat.name in excluded_cats:
-                    continue # Skip products for these categories
+                    continue 
                 
                 prefix = cat_image_map.get(cat.id, 'banarasi')
+                palette = color_palettes.get(cat.name, colors) # Fallback to global colors
+                
                 for i in range(1, 11):
                     img_name = f"{prefix}_{i}.jpeg"
-                    # Generate attractive details
                     name = f"{random.choice(prefixes)} {cat.name.replace('Sarees','').strip()} {random.choice(suffixes)} Vol.{i}"
-                    # Generate realistic prices based on index to ensure budget variety
-                    if i == 1: # Some very cheap ones
-                        price = random.randint(799, 999)
-                    elif i <= 3: # Some mid-range
-                        price = random.randint(1200, 2900)
-                    else: # Rest premium
-                        price = random.randint(6500, 25000)
+                    
+                    if i == 1: price = random.randint(799, 999)
+                    elif i <= 3: price = random.randint(1200, 2900)
+                    else: price = random.randint(6500, 25000)
                     
                     p = Product(
                         name=name,
-                        description=f"A breathtaking {cat.name.replace('Sarees','').strip()} masterpiece. Handcrafted with precision, this piece features traditional motifs and premium {cat.name.replace('Sarees','').strip()} fabric.",
+                        description=f"A breathtaking {cat.name.replace('Sarees','').strip()} masterpiece. Handcrafted with precision.",
                         price=price,
                         original_price=price + random.randint(500, 5000),
                         stock=random.randint(5, 15),
                         category_id=cat.id,
                         image=f"../categories/{img_name}",
                         fabric=cat.name.replace('Sarees','').strip(),
-                        color=random.choice(colors),
-                        occasion="Festive / Puja" if i < 8 else "Bridal / Wedding",
+                        color=random.choice(palette),
+                        occasion="Festive / Puja" if i < 8 else "Party",
                         is_featured=(i == 1),
-                        is_new_arrival=(i == 2),
-                        is_wedding=("Bridal" in cat.name or i > 8)
+                        is_new_arrival=(i == 2)
                     )
                     all_new_products.append(p)
             
