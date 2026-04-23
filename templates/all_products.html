@@ -470,17 +470,17 @@ function recommendSaree(skin, weight, budget, occasion) {
     let fabrics = [];
 
     if (skin === 'dark')        colors = ['Maroon','Royal Blue','Mustard','Gold'];
-    else if (skin === 'fair')   colors = ['Pastel Pink','Peach','Lavender','Mint Green','Pink','Light','Red',,'Yellow'];
-    else if (skin === 'medium') colors = ['Green','Teal','Orange','Magenta','Rust'];
+    else if (skin === 'fair')   colors = ['Pastel Pink','Peach','Lavender','Mint Green','Pink','Light','Red','Yellow'];
+    else if (skin === 'medium') colors = ['Green','Teal','Orange','Magenta','Rust',];
 
-    if (weight === 'slim')  fabrics = ['Net','Organza','Chiffon','Tissue'];
-    else if (weight === 'curvy') fabrics = ['Silk','Georgette','Crepe','Banarasi'];
-    else if (weight === 'plus')  fabrics = ['Chiffon','Cotton'];
+    if (weight === 'slim')  fabrics = ['Net','Organza','Banarasi','Silk'];
+    else if (weight === 'curvy') fabrics = ['Georgette','Crepe','Tissue','Chiffon'];
+    else if (weight === 'plus')  fabrics = ['Chiffon','Cotton','Chiffon','Maroon'];
 
     let occKeywords = [];
     if (occasion === 'wedding') occKeywords = ['Bridal','Wedding','Bride','Panetar','Gharchola'];
     else if (occasion === 'party') occKeywords = ['Party','Reception','Sangeet'];
-    else if (occasion === 'casual') occKeywords = ['Casual','Daily','Cotton','Ajarakh'];
+    else if (occasion === 'casual') occKeywords = ['Casual','Daily','Cotton','Ajarakh','Chiffon'];
 
     let min = 0, max = 9999999;
     if (budget === 'low')    { min = 0;     max = 1000;  }
