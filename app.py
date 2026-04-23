@@ -1132,7 +1132,7 @@ def init_db():
             ]
             db.session.bulk_save_objects(sample_coupons); db.session.commit()
         
-        if Product.query.count() == 0:
+        if Product.query.count() < 20:
             import random
             prefixes = ["Imperial", "Royal", "Heritage", "Midnight", "Ethereal", "Classic", "Vintage", "Glimmering", "Majestic", "Opulent"]
             suffixes = ["Drape", "Elegance", "Majesty", "Masterpiece", "Classic", "Collection", "Treasure", "Grace"]
