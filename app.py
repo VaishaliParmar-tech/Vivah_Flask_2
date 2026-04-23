@@ -6,16 +6,27 @@ from werkzeug.utils import secure_filename
 import os, secrets, string, json, stripe, smtplib, random
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+from dotenv import load_dotenv
+
+# Load environment variables from .env file (for local development)
+load_dotenv()
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'vivah-royal-2026-xK9m'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///vivah.db'
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'vivah-royal-2026-xK9m')
+
+# Database Configuration
+db_url = os.environ.get('DATABASE_URL', 'sqlite:///vivah.db')
+if db_url.startswith("postgres://"):
+    db_url = db_url.replace("postgres://", "postgresql://", 1)
+app.config['SQLALCHEMY_DATABASE_URI'] = db_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
 app.config['UPLOAD_FOLDER'] = os.path.join(os.path.dirname(__file__), 'static', 'images', 'products')
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
-app.config['STRIPE_PUBLIC_KEY'] = os.environ.get('STRIPE_PUBLIC_KEY', '')
-app.config['STRIPE_SECRET_KEY'] = os.environ.get('STRIPE_SECRET_KEY', '')
-stripe.api_key = os.environ.get('STRIPE_SECRET_KEY', '')
+
+app.config['STRIPE_PUBLIC_KEY'] = os.environ.get('STRIPE_PUBLIC_KEY', 'pk_test_51TKf9O3823lz1qaCjtpVDVPzVFjAsv22vYPdekXyovYvB5ulh3U11Ds9YOtctrFIaMa6wr5C0Ykejn3heIu2MMq000O3D7m806')
+app.config['STRIPE_SECRET_KEY'] = os.environ.get('STRIPE_SECRET_KEY', 'sk_test_51TKf9O3823lz1qaCmV55JbvzC8DFVfzrmIdLYeW9TpPakolvh9T5nRZHjMyV386CiHkgeIeba8hsw2a6Njc3a7Ko00cspAiTco')
+stripe.api_key = app.config['STRIPE_SECRET_KEY']
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
 
 # ─── Email Config for OTP ─────────────────────────────────────────────────────
@@ -1066,10 +1077,12 @@ def init_db():
             ]
             db.session.bulk_save_objects(sample_coupons); db.session.commit()
 
+# Initialize Database
+init_db()
+
 if __name__ == '__main__':
-    init_db()
     print("\n" + "="*55)
-    print("  VIVAH SAREES — http://127.0.0.1:5000")
+    print("  VIVAH SAREES — http://127.0.0.1:10000")
     print(f"  Admin: /admin/login  |  {ADMIN_USERNAME} / {ADMIN_PASSWORD}")
     print("="*55 + "\n")
-    app.run(host="0.0.0.0",port=int(os.environ.get("PORT",10000)))
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 10000)), debug=True)

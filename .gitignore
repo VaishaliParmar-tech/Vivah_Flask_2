@@ -1,0 +1,9 @@
+instance/
+__pycache__/
+*.pyc
+.env
+.pytest_cache/
+.vscode/
+.idea/
+static/images/products/*
+!static/images/products/.gitkeep
