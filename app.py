@@ -1143,20 +1143,19 @@ def init_db():
                 13: 'tissue', 14: 'kalamkari', 15: 'digital', 16: 'digital',
                 17: 'patola', 18: 'bandhani'
             }
-            # Special collections mapping
-            occasion_maps = {
-                'haldi': 'Haldi', 'mahendi': 'Sangeet / Mehendi', 
-                'sangeet': 'Sangeet / Mehendi', 'reception': 'Reception'
-            }
             
             prefixes = ["Imperial", "Royal", "Heritage", "Midnight", "Ethereal", "Classic", "Vintage", "Glimmering", "Majestic", "Opulent"]
             suffixes = ["Drape", "Elegance", "Majesty", "Masterpiece", "Classic", "Collection", "Treasure", "Grace"]
             colors = ["Ruby Red", "Emerald Green", "Royal Blue", "Golden Ochre", "Midnight Black", "Pearl White", "Dusty Rose", "Turquoise", "Maroon", "Mustard"]
             
             all_cats = Category.query.all()
+            excluded_cats = ['Kanjivaram Sarees', 'Bridal Collection', 'Silk Sarees', 'Leheriya Sarees']
             all_new_products = []
             
             for cat in all_cats:
+                if cat.name in excluded_cats:
+                    continue # Skip products for these categories
+                
                 prefix = cat_image_map.get(cat.id, 'banarasi')
                 for i in range(1, 11):
                     img_name = f"{prefix}_{i}.jpeg"
@@ -1187,29 +1186,6 @@ def init_db():
                     )
                     all_new_products.append(p)
             
-            # Add extra special collections (Haldi, Sangeet, etc.)
-            for key, occ in occasion_maps.items():
-                for i in range(1, 11):
-                    img_name = f"{key}_{i}.jpeg"
-                    name = f"{occ} Special {random.choice(suffixes)} Vol.{i}"
-                    # Variety for special collections too
-                    if i == 1: price = random.randint(850, 990)
-                    elif i == 2: price = random.randint(1500, 2800)
-                    else: price = random.randint(5000, 15000)
-                    
-                    p = Product(
-                        name=name,
-                        description=f"Exclusive {occ} collection piece. Designed to make you shine on your special day.",
-                        price=price,
-                        stock=10,
-                        category_id=12, 
-                        image=f"../categories/{img_name}",
-                        fabric="Silk Blend",
-                        color="Vibrant",
-                        occasion=occ,
-                        is_wedding=True
-                    )
-                    all_new_products.append(p)
 
             db.session.bulk_save_objects(all_new_products)
             db.session.commit()
