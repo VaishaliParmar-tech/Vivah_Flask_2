@@ -1132,45 +1132,73 @@ def init_db():
             ]
             db.session.bulk_save_objects(sample_coupons); db.session.commit()
         
-        if Product.query.count() < 20:
+        if Product.query.count() == 0:
             import random
+            # Mapping category ID to image prefix
+            cat_image_map = {
+                1: 'bandhani', 2: 'patola', 3: 'gharchola', 4: 'panetar', 
+                5: 'ajarakh', 6: 'banarasi', 7: 'banarasi', 8: 'organza',
+                9: 'chiffon', 10: 'net', 11: 'velvet', 12: 'bride',
+                13: 'tissue', 14: 'kalamkari', 15: 'digital', 16: 'digital',
+                17: 'patola', 18: 'bandhani'
+            }
+            # Special collections mapping
+            occasion_maps = {
+                'haldi': 'Haldi', 'mahendi': 'Sangeet / Mehendi', 
+                'sangeet': 'Sangeet / Mehendi', 'reception': 'Reception'
+            }
+            
             prefixes = ["Imperial", "Royal", "Heritage", "Midnight", "Ethereal", "Classic", "Vintage", "Glimmering", "Majestic", "Opulent"]
             suffixes = ["Drape", "Elegance", "Majesty", "Masterpiece", "Classic", "Collection", "Treasure", "Grace"]
-            fabrics_list = ["Pure Silk", "Kanjivaram", "Bandhani", "Patola", "Gharchola", "Banarasi Silk", "Organza", "Chiffon", "Net", "Velvet", "Tissue", "Georgette"]
-            colors_list = ["Royal Red", "Midnight Black", "Deep Indigo", "Antique Gold", "Emerald Green", "Ruby Pink", "Silver Grey", "Maroon", "Turquoise", "Pearl White"]
-            images_list = ["ajarakh_3_fe3b9ac30538.jpeg", "bandhani_1_4da4f40a8a41.jpeg", "bride_7_3224cbc6e8c4.jpeg", "bride_9_f8025f000d57.jpeg", "gharchola_1_bbb0d5929d4e.jpeg", "net_1_1ca7a532ab34.jpeg", "velvet_10_ecfb746fac8a.jpeg", "bride_7_f509ff731923.jpeg"]
-            occasions_list = ["Bridal / Wedding", "Sangeet / Mehendi", "Reception", "Festive / Puja", "Party"]
+            colors = ["Ruby Red", "Emerald Green", "Royal Blue", "Golden Ochre", "Midnight Black", "Pearl White", "Dusty Rose", "Turquoise", "Maroon", "Mustard"]
             
             all_cats = Category.query.all()
-            new_products = []
+            all_new_products = []
+            
             for cat in all_cats:
-                # Add 4-5 products per category
-                for i in range(1, 6):
-                    pre = random.choice(prefixes)
-                    suf = random.choice(suffixes)
-                    name = f"{pre} {cat.name.replace('Sarees','').strip()} {suf}"
-                    price = random.randint(4500, 35000)
-                    orig = price + random.randint(1000, 5000)
-                    fab = cat.name.replace('Sarees','').strip() if cat.name.replace('Sarees','').strip() in fabrics_list else random.choice(fabrics_list)
+                prefix = cat_image_map.get(cat.id, 'banarasi')
+                for i in range(1, 11):
+                    img_name = f"{prefix}_{i}.jpeg"
+                    # Generate attractive details
+                    name = f"{random.choice(prefixes)} {cat.name.replace('Sarees','').strip()} {random.choice(suffixes)} Vol.{i}"
+                    price = random.randint(6500, 25000)
                     
                     p = Product(
                         name=name,
-                        description=f"This {name} is a masterpiece of craftsmanship, featuring exquisite details on {fab}. A perfect addition to your ethnic wardrobe.",
+                        description=f"A breathtaking {cat.name.replace('Sarees','').strip()} masterpiece. Handcrafted with precision, this piece features traditional motifs and premium {cat.name.replace('Sarees','').strip()} fabric.",
                         price=price,
-                        original_price=orig,
-                        stock=random.randint(5, 20),
+                        original_price=price + random.randint(1000, 5000),
+                        stock=random.randint(5, 15),
                         category_id=cat.id,
-                        image=random.choice(images_list),
-                        fabric=fab,
-                        color=random.choice(colors_list),
-                        occasion=random.choice(occasions_list),
-                        is_featured=(i==1),
-                        is_new_arrival=(i==2),
-                        is_wedding=("Bridal" in cat.name or "Wedding" in occasions_list)
+                        image=f"categories/{img_name}",
+                        fabric=cat.name.replace('Sarees','').strip(),
+                        color=random.choice(colors),
+                        occasion="Festive / Puja" if i < 8 else "Bridal / Wedding",
+                        is_featured=(i == 1),
+                        is_wedding=("Bridal" in cat.name or i > 8)
                     )
-                    new_products.append(p)
+                    all_new_products.append(p)
             
-            db.session.bulk_save_objects(new_products)
+            # Add extra special collections (Haldi, Sangeet, etc. if not already covered)
+            for key, occ in occasion_maps.items():
+                for i in range(1, 11):
+                    img_name = f"{key}_{i}.jpeg"
+                    name = f"{occ} Special {random.choice(suffixes)} Vol.{i}"
+                    p = Product(
+                        name=name,
+                        description=f"Exclusive {occ} collection piece. Designed to make you shine on your special day.",
+                        price=random.randint(5000, 15000),
+                        stock=10,
+                        category_id=12, # Put in Bridal Collection by default
+                        image=f"categories/{img_name}",
+                        fabric="Silk Blend",
+                        color="Vibrant",
+                        occasion=occ,
+                        is_wedding=True
+                    )
+                    all_new_products.append(p)
+
+            db.session.bulk_save_objects(all_new_products)
             db.session.commit()
 
 # Initialize Database
