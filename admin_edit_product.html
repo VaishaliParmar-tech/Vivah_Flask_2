@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Edit Product – Vivah Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    :root{--gold:#C9A84C;--gold-light:#E8CC7A;--crimson:#8B1A1A;--charcoal:#1C1C1C;--ivory:#FAF6EE;--ivory-dark:#F0E9DA;--warm-gray:#7A6A5A}
+    *{box-sizing:border-box;margin:0;padding:0}body{font-family:'Lato',sans-serif;background:#F4F4F7;font-size:14px}a{text-decoration:none;color:inherit}
+    .topbar{background:linear-gradient(135deg,#1C1C1C,#8B1A1A);padding:0 28px;height:58px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,0.3)}
+    .topbar-brand{font-family:'Cinzel',serif;font-size:20px;color:#E8CC7A;letter-spacing:4px}
+    .topbar-actions{display:flex;gap:10px;align-items:center}
+    .topbar-actions a{font-size:12px;color:rgba(255,255,255,0.7);padding:6px 13px;border:1px solid rgba(255,255,255,0.2);transition:all 0.2s}
+    .topbar-actions a:hover{color:white;border-color:var(--gold)}
+    .container{max-width:800px;margin:40px auto;padding:0 20px}
+    .card{background:white;border-radius:3px;box-shadow:0 4px 20px rgba(0,0,0,0.08);overflow:hidden}
+    .card-header{padding:20px 25px;border-bottom:2px solid var(--ivory-dark);display:flex;align-items:center;justify-content:space-between}
+    .card-header h2{font-family:'Cinzel',serif;font-size:18px;color:var(--charcoal);letter-spacing:2px}
+    .card-body{padding:30px}
+    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}.form-grid .full{grid-column:1/-1}
+    .fg label{display:block;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--warm-gray);margin-bottom:8px;font-weight:700}
+    .fg input,.fg select,.fg textarea{width:100%;padding:12px 15px;border:1.5px solid rgba(201,168,76,0.25);background:var(--ivory);font-size:14px;color:var(--charcoal);outline:none;transition:all 0.2s;border-radius:2px;font-family:'Lato',sans-serif}
+    .fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--gold);background:white;box-shadow:0 0 0 4px rgba(201,168,76,0.1)}
+    .fg textarea{resize:vertical;min-height:100px}
+    .current-img{margin-bottom:15px;text-align:center;padding:15px;background:var(--ivory-dark);border-radius:3px}
+    .current-img img{max-height:200px;border:2px solid var(--gold);border-radius:2px}
+    .upload-zone{border:2px dashed rgba(201,168,76,0.5);padding:22px;text-align:center;cursor:pointer;border-radius:3px;background:var(--ivory);transition:all 0.3s}
+    .upload-zone:hover{border-color:var(--gold);background:#FFF8E7}
+    .upload-zone i{font-size:32px;color:var(--gold);display:block;margin-bottom:8px}
+    .checkbox-row{display:flex;gap:20px;flex-wrap:wrap;padding:15px;background:var(--ivory);border:1.5px solid rgba(201,168,76,0.2);border-radius:2px}
+    .checkbox-row label{display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;color:var(--charcoal);font-weight:400;text-transform:none;letter-spacing:0}
+    .checkbox-row input[type=checkbox]{accent-color:var(--crimson);width:16px;height:16px}
+    .btn{display:inline-flex;align-items:center;gap:8px;padding:12px 24px;font-size:11px;letter-spacing:2px;text-transform:uppercase;font-weight:700;border:none;cursor:pointer;transition:all 0.2s;font-family:'Lato',sans-serif;border-radius:2px}
+    .btn-gold{background:linear-gradient(135deg,#9A7A2E,var(--gold),var(--gold-light));color:var(--charcoal);box-shadow:0 4px 15px rgba(201,168,76,0.2)}
+    .btn-gold:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(201,168,76,0.35)}
+    .btn-outline{background:transparent;border:1.5px solid var(--warm-gray);color:var(--warm-gray)}
+    .btn-outline:hover{background:var(--ivory-dark);color:var(--charcoal)}
+    #imgPreview{max-width:100%;max-height:200px;margin:15px auto 0;display:none;border:2px solid var(--gold);border-radius:2px}
+  </style>
+</head>
+<body>
+<div class="topbar">
+  <div class="topbar-brand">VIVAH <span>EDIT PRODUCT</span></div>
+  <div class="topbar-actions">
+    <a href="{{ url_for('admin') }}#tab-products"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
+  </div>
+</div>
+
+<div class="container">
+  <div class="card">
+    <div class="card-header">
+      <h2>Edit: {{ product.name }}</h2>
+      <span style="font-size:11px; color:var(--warm-gray); letter-spacing:1px;">PRODUCT ID: #{{ product.id }}</span>
+    </div>
+    <div class="card-body">
+      <form action="{{ url_for('admin_edit_product', id=product.id) }}" method="POST" enctype="multipart/form-data">
+        <div class="form-grid">
+          <div class="fg full"><label>Product Name *</label><input type="text" name="name" value="{{ product.name }}" required /></div>
+          <div class="fg full"><label>Description</label><textarea name="description">{{ product.description }}</textarea></div>
+          
+          <div class="fg full">
+            <label>Product Image</label>
+            {% if product.image %}
+            <div class="current-img">
+              <p style="font-size:10px; margin-bottom:8px; color:var(--warm-gray);">CURRENT IMAGE:</p>
+              <img src="/static/images/products/{{ product.image }}" alt="{{ product.name }}" />
+            </div>
+            {% endif %}
+            <div class="upload-zone" onclick="document.getElementById('imgInput').click()">
+              <i class="fas fa-cloud-upload-alt"></i>
+              <p>Click to upload a new image to replace the current one</p>
+              <small>Leave empty to keep current image</small>
+            </div>
+            <input type="file" id="imgInput" name="image_file" accept="image/*" style="display:none" onchange="prev(this)" />
+            <img id="imgPreview" src="" alt="" />
+          </div>
+
+          <div class="fg"><label>Selling Price (₹) *</label><input type="number" name="price" value="{{ product.price }}" required min="0" step="0.01" /></div>
+          <div class="fg"><label>Original Price (₹)</label><input type="number" name="original_price" value="{{ product.original_price or '' }}" min="0" step="0.01" /></div>
+          
+          <div class="fg"><label>Fabric</label><select name="fabric">
+            <option value="">— Select —</option>
+            {% for f in ['Pure Silk','Kanjivaram','Bandhani','Patola','Gharchola','Panetar','Ajrakh','Banarasi Silk','Organza','Chiffon','Net','Velvet','Tissue','Kalamkari','Georgette','Cotton Silk'] %}
+              <option {% if product.fabric == f %}selected{% endif %}>{{ f }}</option>
+            {% endfor %}
+          </select></div>
+          
+          <div class="fg"><label>Primary Color</label><input type="text" name="color" value="{{ product.color or '' }}" /></div>
+          
+          <div class="fg full"><label>Occasions</label>
+            <div class="checkbox-row">
+              {% set p_occasions = product.occasion.split(', ') if product.occasion else [] %}
+              {% for o in ['Bridal / Wedding','Sangeet / Mehendi','Reception','Haldi','Festive / Puja','Casual','Party','Office'] %}
+              <label>
+                <input type="checkbox" name="occasion_multi" value="{{ o }}" {% if o in p_occasions %}checked{% endif %} /> {{ o }}
+              </label>
+              {% endfor %}
+            </div>
+          </div>
+
+          <div class="fg"><label>Category</label><select name="category_id">
+            <option value="">— None —</option>
+            {% for cat in categories %}<option value="{{ cat.id }}" {% if product.category_id == cat.id %}selected{% endif %}>{{ cat.name }}</option>{% endfor %}
+          </select></div>
+          
+          <div class="fg"><label>Stock Quantity</label><input type="number" name="stock" value="{{ product.stock }}" min="0" /></div>
+          
+          <div class="fg full"><label>Flags</label>
+            <div class="checkbox-row">
+              <label><input type="checkbox" name="is_wedding" value="1" {% if product.is_wedding %}checked{% endif %} /> 💍 Wedding Collection</label>
+              <label><input type="checkbox" name="is_featured" value="1" {% if product.is_featured %}checked{% endif %} /> ⭐ Featured on Homepage</label>
+              <label><input type="checkbox" name="is_new_arrival" value="1" {% if product.is_new_arrival %}checked{% endif %} /> 🆕 New Arrival</label>
+              <label><input type="checkbox" name="is_vault_exclusive" value="1" {% if product.is_vault_exclusive %}checked{% endif %} /> 🔐 Vault Exclusive</label>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:30px; display:flex; gap:12px; border-top:1px solid var(--ivory-dark); padding-top:25px;">
+          <button type="submit" class="btn btn-gold"><i class="fas fa-save"></i> Save Changes</button>
+          <a href="{{ url_for('admin') }}#tab-products" class="btn btn-outline">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+function prev(i){
+  if(i.files && i.files[0]){
+    var r = new FileReader();
+    r.onload = function(e){
+      var img = document.getElementById('imgPreview');
+      img.src = e.target.result;
+      img.style.display = 'block';
+    };
+    r.readAsDataURL(i.files[0]);
+  }
+}
+</script>
+</body>
+</html>

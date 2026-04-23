@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Panel – Vivah</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    :root{--gold:#C9A84C;--gold-light:#E8CC7A;--crimson:#8B1A1A;--charcoal:#1C1C1C;--ivory:#FAF6EE;--ivory-dark:#F0E9DA;--warm-gray:#7A6A5A}
+    *{box-sizing:border-box;margin:0;padding:0}body{font-family:'Lato',sans-serif;background:#F4F4F7;font-size:14px}a{text-decoration:none;color:inherit}
+    .topbar{background:linear-gradient(135deg,#1C1C1C,#8B1A1A);padding:0 28px;height:58px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,0.3)}
+    .topbar-brand{font-family:'Cinzel',serif;font-size:20px;color:#E8CC7A;letter-spacing:4px}
+    .topbar-brand span{font-size:10px;letter-spacing:2px;color:rgba(255,255,255,0.4);display:block;font-family:'Lato',sans-serif}
+    .topbar-actions{display:flex;gap:10px;align-items:center}
+    .topbar-actions a{font-size:12px;color:rgba(255,255,255,0.7);padding:6px 13px;border:1px solid rgba(255,255,255,0.2);transition:all 0.2s}
+    .topbar-actions a:hover{color:white;border-color:var(--gold)}
+    .admin-body{display:flex;min-height:calc(100vh - 58px)}
+    .sidebar{width:215px;background:white;box-shadow:2px 0 10px rgba(0,0,0,0.06);padding:20px 0;flex-shrink:0;position:sticky;top:58px;height:calc(100vh - 58px);overflow-y:auto}
+    .sidebar-section{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--warm-gray);padding:0 18px;margin:18px 0 7px}
+    .nav-item{display:flex;align-items:center;gap:10px;padding:10px 18px;cursor:pointer;font-size:13px;color:#444;border:none;background:none;width:100%;text-align:left;transition:all 0.2s;border-left:3px solid transparent}
+    .nav-item:hover{background:var(--ivory);color:var(--crimson)}.nav-item.active{color:var(--crimson);background:var(--ivory);border-left-color:var(--gold)}
+    .nav-item i{width:17px;color:var(--gold);font-size:13px}.nav-badge{margin-left:auto;background:var(--crimson);color:white;font-size:9px;padding:2px 6px;border-radius:10px}
+    .main{flex:1;padding:24px;overflow-x:auto}.tab-panel{display:none}.tab-panel.active{display:block}
+    .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+    .stat-card{background:white;padding:20px;border-radius:3px;box-shadow:0 2px 8px rgba(0,0,0,0.06);border-top:3px solid var(--gold)}
+    .stat-num{font-family:'Cinzel',serif;font-size:34px;color:var(--crimson);line-height:1}.stat-label{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--warm-gray);margin-top:5px}
+    .card{background:white;border-radius:3px;box-shadow:0 2px 8px rgba(0,0,0,0.06);margin-bottom:22px;overflow:hidden}
+    .card-header{padding:16px 22px;border-bottom:2px solid var(--ivory-dark);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+    .card-header h2{font-family:'Cinzel',serif;font-size:16px;color:var(--charcoal);letter-spacing:2px}
+    .card-body{padding:22px}
+    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.form-grid .full{grid-column:1/-1}
+    .fg label{display:block;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--warm-gray);margin-bottom:5px}
+    .fg input,.fg select,.fg textarea{width:100%;padding:9px 12px;border:1.5px solid rgba(201,168,76,0.25);background:var(--ivory);font-size:14px;color:var(--charcoal);outline:none;transition:border-color 0.2s;border-radius:2px;font-family:'Lato',sans-serif}
+    .fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--gold);background:white}
+    .fg textarea{resize:vertical;min-height:75px}
+    .upload-zone{border:2px dashed rgba(201,168,76,0.5);padding:22px;text-align:center;cursor:pointer;border-radius:3px;background:var(--ivory);transition:all 0.3s}
+    .upload-zone:hover,.upload-zone.over{border-color:var(--gold);background:#FFF8E7}
+    .upload-zone i{font-size:32px;color:var(--gold);display:block;margin-bottom:8px}
+    .upload-zone p{font-size:13px;color:var(--warm-gray)}.upload-zone small{font-size:11px;color:#aaa}
+    #imgPreview{max-width:100%;max-height:180px;margin:10px auto 0;display:none;border:2px solid var(--gold);border-radius:2px}
+    .checkbox-row{display:flex;gap:18px;flex-wrap:wrap}
+    .checkbox-row label{display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;color:#444}
+    .checkbox-row input[type=checkbox]{accent-color:var(--crimson);width:15px;height:15px}
+    .btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;font-size:10px;letter-spacing:2px;text-transform:uppercase;font-weight:700;border:none;cursor:pointer;transition:all 0.2s;font-family:'Lato',sans-serif;border-radius:2px}
+    .btn-gold{background:linear-gradient(135deg,#9A7A2E,var(--gold),var(--gold-light));color:var(--charcoal)}.btn-gold:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(201,168,76,0.35)}
+    .btn-crimson{background:var(--crimson);color:white}.btn-crimson:hover{background:#B22222}
+    .btn-green{background:#2E7D32;color:white}.btn-outline{background:transparent;border:1.5px solid var(--gold);color:var(--gold)}
+    .btn-sm{padding:5px 12px;font-size:9px}.btn-danger{background:#C62828;color:white}
+    .table-wrap{overflow-x:auto}
+    table{width:100%;border-collapse:collapse;font-size:13px}
+    th{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);padding:10px 12px;text-align:left;border-bottom:2px solid var(--ivory-dark);background:var(--ivory);white-space:nowrap}
+    td{padding:11px 12px;border-bottom:1px solid var(--ivory-dark);vertical-align:middle;color:#444}
+    tr:hover td{background:#FAFAFA}
+    .pthumb{width:48px;height:62px;object-fit:cover;border:1px solid var(--ivory-dark);display:block}
+    .pthumb-ph{width:48px;height:62px;background:var(--ivory-dark);display:flex;align-items:center;justify-content:center;font-size:20px;color:var(--gold)}
+    .sp{display:inline-block;padding:3px 10px;font-size:9px;letter-spacing:1px;text-transform:uppercase;font-weight:700;border-radius:2px}
+    .s-Confirmed,.s-confirmed{background:#E3F2FD;color:#1565C0}.s-Processing,.s-in-progress{background:#FFF3E0;color:#E65100}
+    .s-Shipped{background:#E8F5E9;color:#2E7D32}.s-Delivered,.s-completed{background:#F3E5F5;color:#6A1B9A}
+    .s-pending{background:#FFF8E1;color:#F57F17}.s-Cancelled,.s-cancelled{background:#FFEBEE;color:#B71C1C}
+    .flash-area{margin-bottom:18px}
+    .flash{padding:11px 16px;font-size:13px;margin-bottom:8px;border-radius:2px;display:flex;align-items:center;gap:9px}
+    .flash.success{background:#E8F5E9;color:#1B5E20;border-left:3px solid #4CAF50}
+    .flash.error{background:#FFEBEE;color:#B71C1C;border-left:3px solid #F44336}
+    .flash.info{background:#E3F2FD;color:#0D47A1;border-left:3px solid #2196F3}
+    .sf{display:flex;gap:5px;align-items:center}
+    .sf select{padding:4px 7px;border:1px solid rgba(201,168,76,0.3);background:white;font-size:11px;outline:none;border-radius:2px}
+    .empty-state{text-align:center;padding:40px 20px;color:var(--warm-gray)}
+    .empty-state i{font-size:44px;color:var(--gold);margin-bottom:12px;display:block}
+    .cat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+    .cac{background:white;border:1px solid var(--ivory-dark);padding:12px;text-align:center;border-radius:3px}
+    .cac img{width:100%;height:85px;object-fit:cover;border-radius:2px;margin-bottom:7px}
+    .cac .cn{font-size:12px;font-weight:700;color:var(--charcoal)}.cac .cc{font-size:11px;color:var(--warm-gray)}
+    @media(max-width:700px){.stats-row{grid-template-columns:1fr 1fr}.form-grid{grid-template-columns:1fr}.sidebar{width:180px}}
+  </style>
+</head>
+<body>
+<div class="topbar">
+  <div class="topbar-brand">VIVAH <span>ADMIN PANEL</span></div>
+  <div class="topbar-actions">
+    <a href="{{ url_for('index') }}" target="_blank"><i class="fas fa-external-link-alt"></i> View Site</a>
+    <a href="{{ url_for('admin_logout') }}"><i class="fas fa-sign-out-alt"></i> Logout</a>
+  </div>
+</div>
+
+<div class="admin-body">
+  <div class="sidebar">
+    <div class="sidebar-section">Main</div>
+    <button class="nav-item active" onclick="showTab('dashboard',this)"><i class="fas fa-tachometer-alt"></i> Dashboard</button>
+    <button class="nav-item" onclick="showTab('addprod',this)"><i class="fas fa-plus-circle"></i> Add Product</button>
+    <button class="nav-item" onclick="showTab('products',this)"><i class="fas fa-th-large"></i> All Products <span class="nav-badge">{{ products|length }}</span></button>
+    <div class="sidebar-section">Orders</div>
+    <button class="nav-item" onclick="showTab('orders',this)"><i class="fas fa-shopping-bag"></i> Orders <span class="nav-badge">{{ orders|length }}</span></button>
+    <button class="nav-item" onclick="showTab('replacements',this)"><i class="fas fa-exchange-alt"></i> Replacements <span class="nav-badge">{{ replacement_requests|length }}</span></button>
+    <div class="sidebar-section">Manage</div>
+    <button class="nav-item" onclick="showTab('categories',this)"><i class="fas fa-tags"></i> Categories</button>
+    <button class="nav-item" onclick="showTab('messages',this)"><i class="fas fa-envelope"></i> Messages <span class="nav-badge">{{ contacts|length }}</span></button>
+    <button class="nav-item" onclick="showTab('customers',this)"><i class="fas fa-users"></i> Customers <span class="nav-badge">{{ users|length }}</span></button>
+    <button class="nav-item" onclick="showTab('coupons',this)"><i class="fas fa-tag"></i> Coupons <span class="nav-badge">{{ coupons|length }}</span></button>
+  </div>
+
+  <div class="main">
+    <div class="flash-area">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for cat, msg in messages %}
+          <div class="flash {{ cat }}"><i class="fas fa-{{ 'check-circle' if cat=='success' else 'exclamation-circle' }}"></i>{{ msg|safe }}</div>
+        {% endfor %}
+      {% endwith %}
+    </div>
+
+    <!-- DASHBOARD -->
+    <div class="tab-panel active" id="tab-dashboard">
+      <div class="stats-row">
+        <div class="stat-card"><div class="stat-num">{{ products|length }}</div><div class="stat-label">Products</div></div>
+        <div class="stat-card" style="border-top-color:#1565C0"><div class="stat-num">{{ orders|length }}</div><div class="stat-label">Orders</div></div>
+        <div class="stat-card" style="border-top-color:var(--crimson)"><div class="stat-num">{{ custom_orders|length }}</div><div class="stat-label">Custom Orders</div></div>
+        <div class="stat-card" style="border-top-color:#2E7D32"><div class="stat-num">{{ users|length }}</div><div class="stat-label">Customers</div></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><h2>Recent Orders</h2><button class="btn btn-outline btn-sm" onclick="showTab('orders',document.querySelectorAll('.nav-item')[4])">View All</button></div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Order #</th><th>Customer</th><th>Amount</th><th>Payment</th><th>Status</th><th>Date</th><th>Update</th></tr></thead>
+          <tbody>
+            {% for o in orders[:6] %}<tr>
+              <td><strong style="color:var(--crimson)">{{ o.order_number }}</strong></td>
+              <td>{{ o.user.name if o.user else '—' }}<br><small style="color:var(--warm-gray)">{{ o.user.phone if o.user else '' }}</small></td>
+              <td><strong>₹{{ "{:,.0f}".format(o.total) }}</strong></td>
+              <td>{{ o.payment_method }}</td>
+              <td><span class="sp s-{{ o.status }}">{{ o.status }}</span></td>
+              <td>{{ o.created_at.strftime('%d %b %Y') }}</td>
+              <td><form action="{{ url_for('admin_update_order_status') }}" method="POST" class="sf">
+                <input type="hidden" name="order_id" value="{{ o.id }}" />
+                <select name="status">{% for s in ['Confirmed','Processing','Shipped','Out for Delivery','Delivered','Cancelled'] %}<option value="{{ s }}" {{ 'selected' if o.status==s }}>{{ s }}</option>{% endfor %}</select>
+                <button type="submit" class="btn btn-sm btn-green"><i class="fas fa-check"></i></button>
+              </form></td>
+            </tr>{% else %}<tr><td colspan="7" class="empty-state"><i class="fas fa-shopping-bag" style="font-size:28px"></i> No orders yet</td></tr>{% endfor %}
+          </tbody>
+        </table></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><h2>Recent Custom Orders</h2></div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Customer</th><th>Fabric</th><th>Color</th><th>Occasion</th><th>Budget</th><th>Date</th><th>Status</th></tr></thead>
+          <tbody>
+            {% for co in custom_orders[:5] %}<tr>
+              <td><strong>{{ co.name }}</strong><br><small style="color:var(--warm-gray)">{{ co.email }}</small></td>
+              <td>{{ co.fabric or '—' }}</td><td>{{ co.color or '—' }}</td>
+              <td>{{ co.occasion or '—' }}</td><td>{{ co.budget or '—' }}</td>
+              <td>{{ co.created_at.strftime('%d %b') }}</td>
+              <td><span class="sp s-{{ co.status }}">{{ co.status }}</span></td>
+            </tr>{% else %}<tr><td colspan="7" style="text-align:center;padding:20px;color:var(--warm-gray)">No custom orders yet</td></tr>{% endfor %}
+          </tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- ADD PRODUCT -->
+    <div class="tab-panel" id="tab-addprod">
+      <div class="card">
+        <div class="card-header"><h2><i class="fas fa-plus-circle" style="color:var(--gold);margin-right:8px"></i>Add New Product</h2></div>
+        <div class="card-body">
+          <form action="{{ url_for('admin_add_product') }}" method="POST" enctype="multipart/form-data">
+            <div class="form-grid">
+              <div class="fg full"><label>Product Name *</label><input type="text" name="name" required placeholder="e.g. Royal Crimson Bandhani Silk Saree" /></div>
+              <div class="fg full"><label>Description</label><textarea name="description" placeholder="Describe the saree..."></textarea></div>
+              <div class="fg full">
+                <label>Upload Product Image</label>
+                <div class="upload-zone" id="uploadZone" onclick="document.getElementById('imgInput').click()" ondragover="dov(event)" ondragleave="dlv(event)" ondrop="ddr(event)">
+                  <i class="fas fa-cloud-upload-alt"></i>
+                  <p>Click here to upload image — or drag &amp; drop</p>
+                  <small>JPG, PNG, WEBP supported — max 16 MB</small>
+                </div>
+                <input type="file" id="imgInput" name="image_file" accept="image/*" style="display:none" onchange="prev(this)" />
+                <img id="imgPreview" src="" alt="" />
+                <div style="margin-top:8px;font-size:12px;color:var(--warm-gray)">OR type filename if already in static/images/products/:</div>
+                <div class="fg" style="margin-top:6px"><input type="text" name="image" placeholder="filename.jpg" /></div>
+              </div>
+              <div class="fg"><label>Selling Price (₹) *</label><input type="number" name="price" required placeholder="12500" min="0" step="0.01" /></div>
+              <div class="fg"><label>Original Price (₹) — for sale</label><input type="number" name="original_price" placeholder="15000" min="0" step="0.01" /></div>
+              <div class="fg"><label>Fabric</label><select name="fabric">
+                <option value="">— Select —</option>
+                {% for f in ['Pure Silk','Kanjivaram','Bandhani','Patola','Gharchola','Panetar','Ajrakh','Banarasi Silk','Organza','Chiffon','Net','Velvet','Tissue','Kalamkari','Georgette','Cotton Silk'] %}<option>{{ f }}</option>{% endfor %}
+              </select></div>
+              <div class="fg"><label>Primary Color</label><input type="text" name="color" placeholder="e.g. Royal Red" /></div>
+              <div class="fg full"><label>Occasions (select multiple)</label>
+                <div style="display:flex;flex-wrap:wrap;gap:8px 18px;padding:10px;background:var(--ivory);border:1.5px solid rgba(201,168,76,0.25)">
+                  {% for o in ['Bridal / Wedding','Sangeet / Mehendi','Reception','Haldi','Festive / Puja','Casual','Party','Office'] %}
+                  <label style="display:flex;align-items:center;gap:6px;font-family:var(--font-sans);font-size:12px;color:var(--charcoal);cursor:pointer">
+                    <input type="checkbox" name="occasion_multi" value="{{ o }}" style="accent-color:var(--crimson);width:14px;height:14px" /> {{ o }}
+                  </label>
+                  {% endfor %}
+                </div>
+              </div>
+              <div class="fg"><label>Category</label><select name="category_id">
+                <option value="">— None —</option>
+                {% for cat in categories %}<option value="{{ cat.id }}">{{ cat.name }}</option>{% endfor %}
+              </select></div>
+              <div class="fg"><label>Stock Quantity</label><input type="number" name="stock" value="1" min="0" /></div>
+              <div class="fg full"><label>Flags</label>
+                <div class="checkbox-row">
+                  <label><input type="checkbox" name="is_wedding" value="1" /> 💍 Wedding Collection</label>
+                  <label><input type="checkbox" name="is_featured" value="1" /> ⭐ Featured on Homepage</label>
+                  <label><input type="checkbox" name="is_new_arrival" value="1" /> 🆕 New Arrival</label>
+                  <label><input type="checkbox" name="is_vault_exclusive" value="1" /> 🔐 Vault Exclusive</label>
+                </div>
+              </div>
+            </div>
+            <div style="margin-top:20px;display:flex;gap:10px">
+              <button type="submit" class="btn btn-gold"><i class="fas fa-plus"></i> Add Product</button>
+              <button type="reset" class="btn btn-outline"><i class="fas fa-undo"></i> Clear</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- ALL PRODUCTS -->
+    <div class="tab-panel" id="tab-products">
+      <div class="card">
+        <div class="card-header"><h2>All Products ({{ products|length }})</h2>
+          <button class="btn btn-gold btn-sm" onclick="showTab('addprod',document.querySelectorAll('.nav-item')[1])"><i class="fas fa-plus"></i> Add New</button>
+        </div>
+        {% if products %}
+        <div class="table-wrap"><table>
+          <thead><tr><th>Image</th><th>Name</th><th>Price</th><th>Fabric</th><th>Category</th><th>Stock</th><th>Flags</th><th>Delete</th></tr></thead>
+          <tbody>{% for p in products %}<tr>
+            <td>{% if p.image %}<img src="/static/images/products/{{ p.image }}" class="pthumb" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" /><div class="pthumb-ph" style="display:none">🥻</div>{% else %}<div class="pthumb-ph">🥻</div>{% endif %}</td>
+            <td><strong>{{ p.name }}</strong><br><small style="color:var(--warm-gray)">#{{ p.id }}</small></td>
+            <td><strong style="color:var(--crimson)">₹{{ "{:,.0f}".format(p.price) }}</strong>{% if p.original_price %}<br><small style="text-decoration:line-through;color:var(--warm-gray)">₹{{ "{:,.0f}".format(p.original_price) }}</small>{% endif %}</td>
+            <td>{{ p.fabric or '—' }}</td>
+            <td>{{ p.category.name if p.category else '—' }}</td>
+            <td>{{ p.stock }}</td>
+            <td>{% if p.is_wedding %}💍{% endif %}{% if p.is_featured %}⭐{% endif %}{% if p.is_new_arrival %}🆕{% endif %}</td>
+            <td style="display:flex;gap:6px;flex-direction:column;">
+              <a href="{{ url_for('admin_edit_product', id=p.id) }}" class="btn btn-gold btn-sm" style="font-size:10px;padding:4px 8px;justify-content:center"><i class="fas fa-edit"></i> Edit Product</a>
+              <a href="{{ url_for('admin_product_colors', id=p.id) }}" class="btn btn-outline btn-sm" style="font-size:10px;padding:4px 8px;justify-content:center"><i class="fas fa-palette"></i> Colors</a>
+              <form action="{{ url_for('admin_delete_product', id=p.id) }}" method="POST" onsubmit="return confirm('Delete this product?')" style="margin:0"><button type="submit" class="btn btn-danger btn-sm" style="width:100%;justify-content:center"><i class="fas fa-trash"></i> Delete</button></form>
+            </td>
+          </tr>{% endfor %}</tbody>
+        </table></div>
+        {% else %}<div class="card-body"><div class="empty-state"><i class="fas fa-box-open"></i><h3>No products yet</h3></div></div>{% endif %}
+      </div>
+    </div>
+
+    <!-- ORDERS -->
+    <div class="tab-panel" id="tab-orders">
+      <div class="card">
+        <div class="card-header"><h2>All Customer Orders ({{ orders|length }})</h2></div>
+        {% if orders %}
+        <div class="table-wrap"><table>
+          <thead><tr><th>Order #</th><th>Customer</th><th>Address</th><th>Items</th><th>Total</th><th>Payment</th><th>Status</th><th>Date</th><th>Update</th></tr></thead>
+          <tbody>{% for o in orders %}<tr>
+            <td><strong style="color:var(--crimson)">{{ o.order_number }}</strong></td>
+            <td>{% if o.user %}<strong>{{ o.user.name }}</strong><br><small style="color:var(--warm-gray)">{{ o.user.phone or o.user.email }}</small>{% else %}—{% endif %}</td>
+            <td style="max-width:140px;font-size:12px;color:var(--warm-gray)">{{ o.address or '—' }}</td>
+            <td><div id="oi{{ o.id }}" style="font-size:11px;color:var(--warm-gray);max-width:180px"></div><script>try{var it={{ o.items_json|safe }};var d=document.getElementById('oi{{ o.id }}');it.forEach(function(i){var c = i.color ? ' ('+i.color+')' : ''; d.innerHTML+=i.name+c+' &times;'+i.qty+'<br>';});}catch(e){}</script></td>
+            <td><strong>₹{{ "{:,.0f}".format(o.total) }}</strong></td>
+            <td>{{ o.payment_method }}</td>
+            <td><span class="sp s-{{ o.status }}">{{ o.status }}</span></td>
+            <td style="white-space:nowrap">{{ o.created_at.strftime('%d %b %Y') }}</td>
+            <td><form action="{{ url_for('admin_update_order_status') }}" method="POST" class="sf">
+              <input type="hidden" name="order_id" value="{{ o.id }}" />
+              <select name="status">{% for s in ['Confirmed','Processing','Shipped','Out for Delivery','Delivered','Cancelled'] %}<option value="{{ s }}" {{ 'selected' if o.status==s }}>{{ s }}</option>{% endfor %}</select>
+              <button type="submit" class="btn btn-sm btn-green"><i class="fas fa-check"></i></button>
+            </form></td>
+          </tr>{% endfor %}</tbody>
+        </table></div>
+        {% else %}<div class="card-body"><div class="empty-state"><i class="fas fa-shopping-bag"></i><h3>No orders yet</h3></div></div>{% endif %}
+      </div>
+    </div>
+
+    <!-- CUSTOM ORDERS -->
+    <div class="tab-panel" id="tab-custom">
+      <div class="card">
+        <div class="card-header"><h2>Custom Saree Orders ({{ custom_orders|length }})</h2></div>
+        {% if custom_orders %}
+        <div class="table-wrap"><table>
+          <thead><tr><th>Date</th><th>Customer</th><th>Phone</th><th>Fabric</th><th>Color</th><th>Embroidery</th><th>Occasion</th><th>Budget</th><th>Notes</th><th>Status</th><th>Update</th></tr></thead>
+          <tbody>{% for co in custom_orders %}<tr>
+            <td style="white-space:nowrap">{{ co.created_at.strftime('%d %b %Y') }}</td>
+            <td><strong>{{ co.name }}</strong><br><small style="color:var(--warm-gray)">{{ co.email }}</small></td>
+            <td>{{ co.phone or '—' }}</td>
+            <td>{{ co.fabric or '—' }}</td><td>{{ co.color or '—' }}</td>
+            <td>{{ co.embroidery or '—' }}</td><td>{{ co.occasion or '—' }}</td>
+            <td>{{ co.budget or '—' }}</td>
+            <td style="max-width:140px;font-size:11px;color:var(--warm-gray)">{{ co.special_notes or '—' }}</td>
+            <td><span class="sp s-{{ co.status }}">{{ co.status }}</span></td>
+            <td><form action="{{ url_for('admin_update_custom_order') }}" method="POST" class="sf">
+              <input type="hidden" name="order_id" value="{{ co.id }}" />
+              <select name="status">{% for s in ['pending','confirmed','in-progress','completed','cancelled'] %}<option value="{{ s }}" {{ 'selected' if co.status==s }}>{{ s }}</option>{% endfor %}</select>
+              <button type="submit" class="btn btn-sm btn-green"><i class="fas fa-check"></i></button>
+            </form></td>
+          </tr>{% endfor %}</tbody>
+        </table></div>
+        {% else %}<div class="card-body"><div class="empty-state"><i class="fas fa-magic"></i><h3>No custom orders yet</h3></div></div>{% endif %}
+      </div>
+    </div>
+
+    <!-- CATEGORIES -->
+    <div class="tab-panel" id="tab-categories">
+      <div class="card" style="margin-bottom:20px">
+        <div class="card-header"><h2>Add Category</h2></div>
+        <div class="card-body"><form action="{{ url_for('admin_add_category') }}" method="POST">
+          <div class="form-grid">
+            <div class="fg"><label>Category Name *</label><input type="text" name="name" required placeholder="e.g. Kalamkari Sarees" /></div>
+            <div class="fg"><label>Description</label><input type="text" name="description" placeholder="Short description" /></div>
+          </div>
+          <button type="submit" class="btn btn-gold" style="margin-top:14px"><i class="fas fa-plus"></i> Add</button>
+        </form></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><h2>All Categories ({{ categories|length }})</h2></div>
+        <div class="card-body"><div class="cat-grid">{% for cat in categories %}
+          <div class="cac">
+            {% if cat.image %}<img src="/static/images/{{ cat.image }}" alt="{{ cat.name }}" onerror="this.src='/static/images/sarees/saree1.jpg'" />
+            {% else %}<div style="height:85px;background:var(--ivory-dark);display:flex;align-items:center;justify-content:center;font-size:28px;border-radius:2px;margin-bottom:7px">🥻</div>{% endif %}
+            <div class="cn">{{ cat.name }}</div>
+            <div class="cc">{{ cat.products|length }} products</div>
+          </div>
+        {% endfor %}</div></div>
+      </div>
+    </div>
+
+    <!-- MESSAGES -->
+    <div class="tab-panel" id="tab-messages">
+      <div class="card">
+        <div class="card-header"><h2>Contact Messages ({{ contacts|length }})</h2></div>
+        {% if contacts %}
+        <div class="table-wrap"><table>
+          <thead><tr><th>Date</th><th>Name</th><th>Email</th><th>Phone</th><th>Message</th></tr></thead>
+          <tbody>{% for m in contacts %}<tr>
+            <td style="white-space:nowrap">{{ m.created_at.strftime('%d %b %Y') }}</td>
+            <td><strong>{{ m.name }}</strong></td>
+            <td><a href="mailto:{{ m.email }}" style="color:var(--crimson)">{{ m.email }}</a></td>
+            <td>{{ m.phone or '—' }}</td>
+            <td style="max-width:260px">{{ m.message }}</td>
+          </tr>{% endfor %}</tbody>
+        </table></div>
+        {% else %}<div class="card-body"><div class="empty-state"><i class="fas fa-envelope"></i><h3>No messages yet</h3></div></div>{% endif %}
+      </div>
+    </div>
+
+    <!-- CUSTOMERS -->
+    <div class="tab-panel" id="tab-customers">
+      <div class="card">
+        <div class="card-header"><h2>Customers ({{ users|length }})</h2></div>
+        {% if users %}
+        <div class="table-wrap"><table>
+          <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Orders</th><th>Joined</th></tr></thead>
+          <tbody>{% for u in users %}<tr>
+            <td><strong>{{ u.name }}</strong></td><td>{{ u.email }}</td>
+            <td>{{ u.phone or '—' }}</td><td>{{ u.orders|length }}</td>
+            <td>{{ u.created_at.strftime('%d %b %Y') }}</td>
+          </tr>{% endfor %}</tbody>
+        </table></div>
+        {% else %}<div class="card-body"><div class="empty-state"><i class="fas fa-users"></i><h3>No customers yet</h3></div></div>{% endif %}
+      </div>
+    </div>
+
+    <!-- COUPONS -->
+    <div class="tab-panel" id="tab-coupons">
+      <div class="card" style="margin-bottom:24px">
+        <div class="card-header"><h2><i class="fas fa-tag" style="color:var(--gold);margin-right:8px"></i>Add New Coupon</h2></div>
+        <div class="card-body">
+          <form action="{{ url_for('admin_add_coupon') }}" method="POST">
+            <div class="form-grid">
+              <div class="fg">
+                <label>Coupon Code *</label>
+                <input type="text" name="code" required placeholder="e.g. VIVAH20" style="text-transform:uppercase;letter-spacing:2px;font-weight:700"/>
+              </div>
+              <div class="fg">
+                <label>Discount Type *</label>
+                <select name="discount_type" required>
+                  <option value="percent">Percentage (%)</option>
+                  <option value="flat">Flat Amount (₹)</option>
+                </select>
+              </div>
+              <div class="fg">
+                <label>Discount Value *</label>
+                <input type="number" name="discount_value" required placeholder="e.g. 20" min="1" step="0.01"/>
+              </div>
+              <div class="fg">
+                <label>Min. Order Amount (₹)</label>
+                <input type="number" name="min_order" placeholder="0" min="0" step="0.01" value="0"/>
+              </div>
+              <div class="fg">
+                <label>Max Uses <small style="color:var(--warm-gray);text-transform:none;letter-spacing:0">(leave blank = unlimited)</small></label>
+                <input type="number" name="max_uses" placeholder="Unlimited" min="1"/>
+              </div>
+              <div class="fg" style="display:flex;align-items:flex-end">
+                <button type="submit" class="btn btn-gold" style="width:100%;padding:10px 0;justify-content:center">
+                  <i class="fas fa-plus-circle"></i> Add Coupon
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><h2>All Coupons ({{ coupons|length }})</h2></div>
+        {% if coupons %}
+        <div class="table-wrap"><table>
+          <thead><tr><th>Code</th><th>Type</th><th>Value</th><th>Min Order</th><th>Used</th><th>Max Uses</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody>
+          {% for c in coupons %}
+          <tr>
+            <td><strong style="font-family:var(--font-sans);letter-spacing:1px;color:var(--crimson)">{{ c.code }}</strong></td>
+            <td>{{ 'Percentage' if c.discount_type == 'percent' else 'Flat' }}</td>
+            <td>{{ c.discount_value }}{{ '%' if c.discount_type == 'percent' else ' ₹' }}</td>
+            <td>₹{{ "%.0f"|format(c.min_order or 0) }}</td>
+            <td>{{ c.used_count or 0 }}</td>
+            <td>{{ c.max_uses or '∞' }}</td>
+            <td>
+              <span style="padding:3px 10px;border-radius:10px;font-size:11px;font-weight:700;background:{{ 'rgba(46,125,50,0.12)' if c.is_active else 'rgba(201,168,76,0.15)' }};color:{{ '#2E7D32' if c.is_active else 'var(--warm-gray)' }}">
+                {{ 'Active' if c.is_active else 'Inactive' }}
+              </span>
+            </td>
+            <td style="display:flex;gap:6px">
+              <form action="{{ url_for('admin_toggle_coupon', id=c.id) }}" method="POST" style="margin:0">
+                <button type="submit" class="btn btn-outline btn-sm" style="font-size:11px;padding:4px 10px">
+                  {{ 'Deactivate' if c.is_active else 'Activate' }}
+                </button>
+              </form>
+              <form action="{{ url_for('admin_delete_coupon', id=c.id) }}" method="POST" style="margin:0" onsubmit="return confirm('Delete coupon {{ c.code }}?')">
+                <button type="submit" class="btn btn-sm" style="font-size:11px;padding:4px 10px;background:var(--crimson);color:white;border:none;cursor:pointer">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+          </tbody>
+        </table></div>
+        {% else %}
+        <div class="card-body">
+          <div class="empty-state">
+            <i class="fas fa-tag" style="font-size:48px;color:var(--gold);margin-bottom:16px"></i>
+            <h3>No coupons yet</h3>
+            <p style="color:var(--warm-gray);margin-top:8px">Add your first coupon code above to offer discounts to customers.</p>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- REPLACEMENTS -->
+    <div class="tab-panel" id="tab-replacements">
+      <div class="card">
+        <div class="card-header"><h2><i class="fas fa-exchange-alt" style="color:var(--gold);margin-right:8px"></i>Replacement Requests ({{ replacement_requests|length }})</h2></div>
+        {% if replacement_requests %}
+        <div class="table-wrap"><table>
+          <thead><tr><th>#</th><th>Order</th><th>Customer</th><th>Reason</th><th>Description</th><th>Status</th><th>Date</th><th>Update</th></tr></thead>
+          <tbody>{% for rr in replacement_requests %}<tr>
+            <td>{{ rr.id }}</td>
+            <td><strong style="color:var(--crimson)">{{ rr.order.order_number }}</strong></td>
+            <td>{% if rr.user %}<strong>{{ rr.user.name }}</strong><br><small style="color:var(--warm-gray)">{{ rr.user.email }}</small>{% else %}—{% endif %}</td>
+            <td>{{ rr.reason }}</td>
+            <td style="max-width:180px;font-size:12px;color:var(--warm-gray)">{{ rr.description or '—' }}</td>
+            <td><span class="sp s-{{ rr.status }}">{{ rr.status }}</span></td>
+            <td style="white-space:nowrap">{{ rr.created_at.strftime('%d %b %Y') }}</td>
+            <td>
+              <form action="{{ url_for('admin_update_replacement') }}" method="POST" style="min-width:220px">
+                <input type="hidden" name="replacement_id" value="{{ rr.id }}" />
+                <div class="sf" style="margin-bottom:6px">
+                  <select name="status">{% for s in ['Pending','Approved','Rejected','Completed'] %}<option value="{{ s }}" {{ 'selected' if rr.status==s }}>{{ s }}</option>{% endfor %}</select>
+                  <button type="submit" class="btn btn-sm btn-green"><i class="fas fa-check"></i></button>
+                </div>
+                <input type="text" name="admin_note" placeholder="Admin note..." value="{{ rr.admin_note or '' }}" style="width:100%;padding:5px 8px;border:1px solid rgba(201,168,76,0.3);font-size:11px;background:var(--ivory);outline:none" />
+              </form>
+            </td>
+          </tr>{% endfor %}</tbody>
+        </table></div>
+        {% else %}<div class="card-body"><div class="empty-state"><i class="fas fa-exchange-alt" style="font-size:48px;color:var(--gold);margin-bottom:16px;"></i><h3>No replacement requests yet</h3></div></div>{% endif %}
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+function showTab(name,btn){
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
+  var p=document.getElementById('tab-'+name);if(p)p.classList.add('active');
+  if(btn)btn.classList.add('active');
+}
+window.addEventListener('DOMContentLoaded',function(){
+  var h=window.location.hash.replace('#tab-','').replace('#','');
+  if(h){var b=document.querySelector('[onclick*="'+h+'"]');if(b)showTab(h,b);}
+});
+function prev(i){if(i.files&&i.files[0]){var r=new FileReader();r.onload=function(e){var img=document.getElementById('imgPreview');img.src=e.target.result;img.style.display='block';document.getElementById('uploadZone').innerHTML='<i class="fas fa-check-circle" style="color:green;font-size:28px;display:block;margin-bottom:8px"></i><p>'+i.files[0].name+'</p><small>Ready to upload</small>';};r.readAsDataURL(i.files[0]);}}
+function dov(e){e.preventDefault();document.getElementById('uploadZone').classList.add('over');}
+function dlv(e){document.getElementById('uploadZone').classList.remove('over');}
+function ddr(e){e.preventDefault();document.getElementById('uploadZone').classList.remove('over');var f=e.dataTransfer.files[0];if(f&&f.type.startsWith('image/')){var dt=new DataTransfer();dt.items.add(f);document.getElementById('imgInput').files=dt.files;prev(document.getElementById('imgInput'));}}
+setTimeout(()=>document.querySelectorAll('.flash').forEach(f=>{f.style.transition='opacity 1s';f.style.opacity='0';}),5000);
+</script>
+</body>
+</html>

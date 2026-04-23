@@ -327,6 +327,57 @@ def admin_add_product():
     flash(f'Product "{p.name}" added!', 'success')
     return redirect(url_for('admin') + '#tab-products')
 
+@app.route('/admin/product/edit/<int:id>', methods=['GET', 'POST'])
+@admin_required
+def admin_edit_product(id):
+    p = Product.query.get_or_404(id)
+    categories = Category.query.all()
+    if request.method == 'POST':
+        image_filename = p.image
+        if 'image_file' in request.files:
+            file = request.files['image_file']
+            if file and file.filename and allowed_file(file.filename):
+                filename = secure_filename(file.filename)
+                name_part, ext = os.path.splitext(filename)
+                filename = f"{name_part}_{secrets.token_hex(6)}{ext}"
+                os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                image_filename = filename
+        
+        try:
+            p.name = request.form.get('name', p.name).strip()
+            p.description = request.form.get('description', p.description).strip()
+            p.price = float(request.form.get('price', p.price))
+            orig = request.form.get('original_price', '').strip()
+            p.original_price = float(orig) if orig else None
+            p.stock = int(request.form.get('stock', p.stock))
+            cat_id = request.form.get('category_id', '')
+            p.category_id = int(cat_id) if cat_id else None
+            p.fabric = request.form.get('fabric', p.fabric)
+            p.color = request.form.get('color', p.color)
+            
+            # Handling multi-select occasion
+            occasions = request.form.getlist('occasion_multi')
+            if occasions:
+                p.occasion = ', '.join(occasions)
+            else:
+                p.occasion = request.form.get('occasion', p.occasion)
+                
+            p.image = image_filename
+            p.is_wedding = bool(request.form.get('is_wedding'))
+            p.is_featured = bool(request.form.get('is_featured'))
+            p.is_new_arrival = bool(request.form.get('is_new_arrival'))
+            p.is_vault_exclusive = bool(request.form.get('is_vault_exclusive'))
+            
+            db.session.commit()
+            flash(f'Product "{p.name}" updated successfully!', 'success')
+            return redirect(url_for('admin') + '#tab-products')
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Error updating product: {e}', 'error')
+            
+    return render_template('admin_edit_product.html', product=p, categories=categories)
+
 @app.route('/admin/product/delete/<int:id>', methods=['POST'])
 @admin_required
 def admin_delete_product(id):
@@ -1051,7 +1102,7 @@ def init_db():
                 ('Gharchola Sarees','gharchola-sarees','Bridal Gharchola with gold zari','categories/gharchola_1.jpeg'),
                 ('Panetar Sarees','panetar-sarees','Traditional white & red for weddings','categories/panetar_1.jpeg'),
                 ('Ajrakh Sarees','ajrakh-sarees','Ancient block-print from Kutch','categories/ajarakh_1.jpeg'),
-                ('Kanjivaram Sarees','kanjivaram-sarees','Authentic South Indian silk','categories/kanjivaram_2.jpeg'),
+                ('Kanjivaram Sarees','kanjivaram-sarees','Authentic South Indian silk','categories/banarasi_1.jpeg'),
                 ('Banarasi Sarees','banarasi-sarees','Traditional Banarasi with gold zari','categories/banarasi_1.jpeg'),
                 ('Organza Sarees','organza-sarees','Sheer & elegant Organza drapes','categories/organza_1.jpeg'),
                 ('Chiffon Sarees','chiffon-sarees','Lightweight flowing Chiffon','categories/chiffon_1.jpeg'),
@@ -1061,9 +1112,9 @@ def init_db():
                 ('Tissue Sarees','tissue-sarees','Shimmering tissue for festivals','categories/tissue_1.jpeg'),
                 ('Kalamkari Sarees','kalamkari-sarees','Hand-painted art on silk','categories/kalamkari_1.jpeg'),
                 ('Digital Print','digital-print','Modern digital print sarees','categories/digital_1.jpeg'),
-                ('Designer Sarees','designer-sarees','Contemporary designer pieces','categories/sangeet_5.jpeg'),
-                ('Silk Sarees','silk-sarees','Luxurious pure silk','categories/silk_10.jpeg'),
-                ('Leheriya Sarees','leheriya-sarees','Wave-pattern from Rajasthan','categories/leheriya_4.jpeg'),
+                ('Designer Sarees','designer-sarees','Contemporary designer pieces','categories/banarasi_2.jpeg'),
+                ('Silk Sarees','silk-sarees','Luxurious pure silk','categories/patola_1.jpeg'),
+                ('Leheriya Sarees','leheriya-sarees','Wave-pattern from Rajasthan','categories/bandhani_2.jpeg'),
             ]
             for name, slug, desc, img in cats:
                 db.session.add(Category(name=name, slug=slug, description=desc, image=img))
