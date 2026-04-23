@@ -811,7 +811,7 @@ def wedding_collection():
                           'category_name': p.category.name if p.category else '',
                           'image': p.image or ''} for p in all_products_qs]
     return render_template('wedding_collection.html', products=products,
-                           wishlist=wishlist, all_products_json=all_products_json)
+                           wishlist=wishlist, wedding_json=all_products_json)
 
 @app.route('/new-arrivals')
 def new_arrivals():
