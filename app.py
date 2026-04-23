@@ -947,6 +947,10 @@ def cart():
 
 @app.route('/cart/add/<int:id>', methods=['POST'])
 def add_to_cart(id):
+    p = Product.query.get_or_404(id)
+    if p.stock <= 0:
+        return jsonify({'success': False, 'message': 'Sorry, this product is currently out of stock.'})
+    
     color = request.args.get('color')
     cart = session.get('cart', [])
     for item in cart:
