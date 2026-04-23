@@ -1133,17 +1133,45 @@ def init_db():
             db.session.bulk_save_objects(sample_coupons); db.session.commit()
         
         if Product.query.count() == 0:
-            sample_products = [
-                Product(name="Imperial Ajrakh Heritage Saree", description="Hand-block printed with natural dyes, this Ajrakh saree represents the soul of Kutch craftsmanship. Perfect for cultural events.", price=8500, stock=10, category_id=5, image="ajarakh_3_fe3b9ac30538.jpeg", fabric="Ajrakh", color="Deep Indigo", occasion="Festive / Puja"),
-                Product(name="Midnight Velvet Regal Drape", description="Luxurious plush velvet saree in deep black, adorned with delicate sequin work. A showstopper for evening galas.", price=12500, original_price=15000, stock=5, category_id=11, image="velvet_10_ecfb746fac8a.jpeg", fabric="Velvet", color="Midnight Black", occasion="Party", is_featured=True),
-                Product(name="Scarlet Bridal Majesty", description="An exquisite scarlet red bridal saree with intricate zardosi work and heavy pallu. Designed for the unforgettable day.", price=28000, original_price=35000, stock=3, category_id=12, image="bride_7_3224cbc6e8c4.jpeg", fabric="Banarasi Silk", color="Royal Red", occasion="Bridal / Wedding", is_wedding=True),
-                Product(name="Traditional Bandhani Classic", description="Classic tie-dye Bandhani from Jamnagar. Lightweight and vibrant, featuring traditional Gaji silk texture.", price=5500, stock=15, category_id=1, image="bandhani_1_4da4f40a8a41.jpeg", fabric="Pure Silk", color="Maroon & Yellow", occasion="Sangeet / Mehendi"),
-                Product(name="Royal Gharchola Silk", description="A sacred weave of gold checks and hand-tied bandhej. The ultimate choice for tradition-bound Gujarati weddings.", price=9800, stock=8, category_id=3, image="gharchola_1_bbb0d5929d4e.jpeg", fabric="Gharchola", color="Vermilion Red", occasion="Bridal / Wedding", is_new_arrival=True),
-                Product(name="Ethereal Moonlight Net Saree", description="Soft net saree with shimmering stone work. Creates a dreamy silhouette for cocktail nights.", price=7200, original_price=8500, stock=12, category_id=10, image="net_1_1ca7a532ab34.jpeg", fabric="Net", color="Silver Grey", occasion="Party"),
-                Product(name="Golden Hour Bridal Silk", description="Antique gold zari work on pure silk. A masterpiece of South Indian weaving, perfect for the modern bride.", price=32000, stock=2, category_id=12, image="bride_9_f8025f000d57.jpeg", fabric="Pure Silk", color="Antique Gold", occasion="Bridal / Wedding", is_vault_exclusive=True),
-                Product(name="Ruby Rose Bridal Elegance", description="A contemporary take on traditional red, featuring floral motifs and a sophisticated borders.", price=22000, stock=4, category_id=12, image="bride_7_f509ff731923.jpeg", fabric="Pure Silk", color="Ruby Red", occasion="Reception")
-            ]
-            db.session.bulk_save_objects(sample_products); db.session.commit()
+            import random
+            prefixes = ["Imperial", "Royal", "Heritage", "Midnight", "Ethereal", "Classic", "Vintage", "Glimmering", "Majestic", "Opulent"]
+            suffixes = ["Drape", "Elegance", "Majesty", "Masterpiece", "Classic", "Collection", "Treasure", "Grace"]
+            fabrics_list = ["Pure Silk", "Kanjivaram", "Bandhani", "Patola", "Gharchola", "Banarasi Silk", "Organza", "Chiffon", "Net", "Velvet", "Tissue", "Georgette"]
+            colors_list = ["Royal Red", "Midnight Black", "Deep Indigo", "Antique Gold", "Emerald Green", "Ruby Pink", "Silver Grey", "Maroon", "Turquoise", "Pearl White"]
+            images_list = ["ajarakh_3_fe3b9ac30538.jpeg", "bandhani_1_4da4f40a8a41.jpeg", "bride_7_3224cbc6e8c4.jpeg", "bride_9_f8025f000d57.jpeg", "gharchola_1_bbb0d5929d4e.jpeg", "net_1_1ca7a532ab34.jpeg", "velvet_10_ecfb746fac8a.jpeg", "bride_7_f509ff731923.jpeg"]
+            occasions_list = ["Bridal / Wedding", "Sangeet / Mehendi", "Reception", "Festive / Puja", "Party"]
+            
+            all_cats = Category.query.all()
+            new_products = []
+            for cat in all_cats:
+                # Add 4-5 products per category
+                for i in range(1, 6):
+                    pre = random.choice(prefixes)
+                    suf = random.choice(suffixes)
+                    name = f"{pre} {cat.name.replace('Sarees','').strip()} {suf}"
+                    price = random.randint(4500, 35000)
+                    orig = price + random.randint(1000, 5000)
+                    fab = cat.name.replace('Sarees','').strip() if cat.name.replace('Sarees','').strip() in fabrics_list else random.choice(fabrics_list)
+                    
+                    p = Product(
+                        name=name,
+                        description=f"This {name} is a masterpiece of craftsmanship, featuring exquisite details on {fab}. A perfect addition to your ethnic wardrobe.",
+                        price=price,
+                        original_price=orig,
+                        stock=random.randint(5, 20),
+                        category_id=cat.id,
+                        image=random.choice(images_list),
+                        fabric=fab,
+                        color=random.choice(colors_list),
+                        occasion=random.choice(occasions_list),
+                        is_featured=(i==1),
+                        is_new_arrival=(i==2),
+                        is_wedding=("Bridal" in cat.name or "Wedding" in occasions_list)
+                    )
+                    new_products.append(p)
+            
+            db.session.bulk_save_objects(new_products)
+            db.session.commit()
 
 # Initialize Database
 init_db()
