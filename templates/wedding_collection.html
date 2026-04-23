@@ -268,11 +268,11 @@ var FN_META = {
 };
 
 var FN_KEYWORDS = {
-  haldi:    ['cotton','chiffon','georgette','haldi','yellow','light'],
-  mehendi:  ['georgette','crepe','chiffon','mehendi','green','mahendi'],
+  haldi:    ['haldi','yellow'],
+  mehendi:  ['mehendi','green','mahendi'],
   sangeet:  ['net','organza','sangeet','party','sequin','shimmer'],
-  wedding:  ['silk','banarasi','kanjivaram','patola','gharchola','panetar','bridal','bride','wedding'],
-  reception:['velvet','tissue','net','organza','reception','evening']
+  wedding:  ['bridal','bride','wedding'],
+  reception:['reception']
 };
 
 // ── Chip highlight ──
@@ -292,7 +292,7 @@ document.getElementById('planBudget').addEventListener('input', updateBudgetPrev
 function computeAllocs(budget, selected) {
   var allocs = {};
   var hasWedding = selected.indexOf('wedding') !== -1;
-  var weddingAmt = hasWedding ? Math.round(budget * 0.40 / 100) * 100 : 0;
+  var weddingAmt = hasWedding ? Math.round(budget * 0.50 / 100) * 100 : 0;
   var remaining  = budget - weddingAmt;
   var others     = selected.filter(function(fn){ return fn !== 'wedding'; });
   var perOther   = others.length ? Math.round(remaining / others.length / 100) * 100 : 0;
@@ -442,7 +442,7 @@ function buildOccasionPlan() {
     }
   }).join('');
 
-  // ── Render full package card (no custom order button) ──
+  // ── Render full package card (no custom order button) ─
   document.getElementById('packGrid').innerHTML = [
     '<div style="border:2px solid rgba(139,26,26,0.2);overflow:hidden">',
       '<div style="background:linear-gradient(135deg,#8B1A1A,#2e0808);color:white;padding:20px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">',
