@@ -1107,7 +1107,7 @@ def init_db():
                 ('Gharchola Sarees','gharchola-sarees','Bridal Gharchola with gold zari','categories/gharchola_1.jpeg'),
                 ('Panetar Sarees','panetar-sarees','Traditional white & red for weddings','categories/panetar_1.jpeg'),
                 ('Ajrakh Sarees','ajrakh-sarees','Ancient block-print from Kutch','categories/ajarakh_1.jpeg'),
-                ('Kanjivaram Sarees','kanjivaram-sarees','Authentic South Indian silk','categories/banarasi_1.jpeg'),
+                ('Kanjivaram Sarees','kanjivaram-sarees','Authentic South Indian silk','categories/kanjivaram_2.jpeg'),
                 ('Banarasi Sarees','banarasi-sarees','Traditional Banarasi with gold zari','categories/banarasi_1.jpeg'),
                 ('Organza Sarees','organza-sarees','Sheer & elegant Organza drapes','categories/organza_1.jpeg'),
                 ('Chiffon Sarees','chiffon-sarees','Lightweight flowing Chiffon','categories/chiffon_1.jpeg'),
@@ -1118,8 +1118,8 @@ def init_db():
                 ('Kalamkari Sarees','kalamkari-sarees','Hand-painted art on silk','categories/kalamkari_1.jpeg'),
                 ('Digital Print','digital-print','Modern digital print sarees','categories/digital_1.jpeg'),
                 ('Designer Sarees','designer-sarees','Contemporary designer pieces','categories/banarasi_2.jpeg'),
-                ('Silk Sarees','silk-sarees','Luxurious pure silk','categories/patola_1.jpeg'),
-                ('Leheriya Sarees','leheriya-sarees','Wave-pattern from Rajasthan','categories/bandhani_2.jpeg'),
+                ('Silk Sarees','silk-sarees','Luxurious pure silk','categories/silk_3.jpeg'),
+                ('Leheriya Sarees','leheriya-sarees','Wave-pattern from Rajasthan','categories/leheriya_3.jpeg'),
             ]
             for name, slug, desc, img in cats:
                 db.session.add(Category(name=name, slug=slug, description=desc, image=img))
