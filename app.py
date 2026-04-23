@@ -1161,13 +1161,19 @@ def init_db():
                     img_name = f"{prefix}_{i}.jpeg"
                     # Generate attractive details
                     name = f"{random.choice(prefixes)} {cat.name.replace('Sarees','').strip()} {random.choice(suffixes)} Vol.{i}"
-                    price = random.randint(6500, 25000)
+                    # Generate realistic prices based on index to ensure budget variety
+                    if i == 1: # Some very cheap ones
+                        price = random.randint(799, 999)
+                    elif i <= 3: # Some mid-range
+                        price = random.randint(1200, 2900)
+                    else: # Rest premium
+                        price = random.randint(6500, 25000)
                     
                     p = Product(
                         name=name,
                         description=f"A breathtaking {cat.name.replace('Sarees','').strip()} masterpiece. Handcrafted with precision, this piece features traditional motifs and premium {cat.name.replace('Sarees','').strip()} fabric.",
                         price=price,
-                        original_price=price + random.randint(1000, 5000),
+                        original_price=price + random.randint(500, 5000),
                         stock=random.randint(5, 15),
                         category_id=cat.id,
                         image=f"../categories/{img_name}",
@@ -1175,21 +1181,27 @@ def init_db():
                         color=random.choice(colors),
                         occasion="Festive / Puja" if i < 8 else "Bridal / Wedding",
                         is_featured=(i == 1),
+                        is_new_arrival=(i == 2),
                         is_wedding=("Bridal" in cat.name or i > 8)
                     )
                     all_new_products.append(p)
             
-            # Add extra special collections (Haldi, Sangeet, etc. if not already covered)
+            # Add extra special collections (Haldi, Sangeet, etc.)
             for key, occ in occasion_maps.items():
                 for i in range(1, 11):
                     img_name = f"{key}_{i}.jpeg"
                     name = f"{occ} Special {random.choice(suffixes)} Vol.{i}"
+                    # Variety for special collections too
+                    if i == 1: price = random.randint(850, 990)
+                    elif i == 2: price = random.randint(1500, 2800)
+                    else: price = random.randint(5000, 15000)
+                    
                     p = Product(
                         name=name,
                         description=f"Exclusive {occ} collection piece. Designed to make you shine on your special day.",
-                        price=random.randint(5000, 15000),
+                        price=price,
                         stock=10,
-                        category_id=12, # Put in Bridal Collection by default
+                        category_id=12, 
                         image=f"../categories/{img_name}",
                         fabric="Silk Blend",
                         color="Vibrant",
