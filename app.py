@@ -1170,7 +1170,7 @@ def init_db():
                         original_price=price + random.randint(1000, 5000),
                         stock=random.randint(5, 15),
                         category_id=cat.id,
-                        image=f"categories/{img_name}",
+                        image=f"../categories/{img_name}",
                         fabric=cat.name.replace('Sarees','').strip(),
                         color=random.choice(colors),
                         occasion="Festive / Puja" if i < 8 else "Bridal / Wedding",
@@ -1190,7 +1190,7 @@ def init_db():
                         price=random.randint(5000, 15000),
                         stock=10,
                         category_id=12, # Put in Bridal Collection by default
-                        image=f"categories/{img_name}",
+                        image=f"../categories/{img_name}",
                         fabric="Silk Blend",
                         color="Vibrant",
                         occasion=occ,
