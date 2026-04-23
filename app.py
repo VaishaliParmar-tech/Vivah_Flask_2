@@ -802,7 +802,8 @@ def collection_detail(slug):
 
 @app.route('/wedding-collection')
 def wedding_collection():
-    products = Product.query.filter_by(is_wedding=True).all()
+    wedding_occasions = ['Bridal / Wedding', 'Haldi', 'Sangeet / Mehendi', 'Reception']
+    products = Product.query.filter(Product.occasion.in_(wedding_occasions)).all()
     wishlist = session.get('wishlist', [])
     all_products_qs = Product.query.filter(Product.stock > 0).all()
     all_products_json = [{'id': p.id, 'name': p.name, 'price': p.price,
