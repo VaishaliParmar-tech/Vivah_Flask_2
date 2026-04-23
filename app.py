@@ -1133,76 +1133,8 @@ def init_db():
             ]
             db.session.bulk_save_objects(sample_coupons); db.session.commit()
         
-        if Product.query.count() == 0:
-            import random
-            # Mapping category ID to image prefix
-            cat_image_map = {
-                1: 'bandhani', 2: 'patola', 3: 'gharchola', 4: 'panetar', 
-                5: 'ajarakh', 6: 'banarasi', 7: 'banarasi', 8: 'organza',
-                9: 'chiffon', 10: 'net', 11: 'velvet', 12: 'bride',
-                13: 'tissue', 14: 'kalamkari', 15: 'digital', 16: 'digital',
-                17: 'patola', 18: 'bandhani'
-            }
-            
-            prefixes = ["Imperial", "Royal", "Heritage", "Midnight", "Ethereal", "Classic", "Vintage", "Glimmering", "Majestic", "Opulent"]
-            suffixes = ["Drape", "Elegance", "Majesty", "Masterpiece", "Classic", "Collection", "Treasure", "Grace"]
-            colors = ["Ruby Red", "Emerald Green", "Royal Blue", "Golden Ochre", "Midnight Black", "Pearl White", "Dusty Rose", "Turquoise", "Maroon", "Mustard"]
-            
-            all_cats = Category.query.all()
-            excluded_cats = ['Kanjivaram Sarees', 'Bridal Collection', 'Silk Sarees', 'Leheriya Sarees']
-            # Category-specific color palettes
-            color_palettes = {
-                'Bandhani Sarees': ["Ruby Red", "Maroon", "Emerald Green", "Deep Yellow"],
-                'Patola Sarees': ["Indigo Blue", "Rust Orange", "Mustard Yellow", "Black"],
-                'Gharchola Sarees': ["Bridal Red", "Maroon", "Gold"],
-                'Panetar Sarees': ["Pearl White", "Ivory", "Red"],
-                'Ajrakh Sarees': ["Indigo Blue", "Madder Red", "Charcoal Black"],
-                'Banarasi Sarees': ["Royal Blue", "Golden Ochre", "Crimson Red", "Emerald"],
-                'Organza Sarees': ["Pastel Pink", "Sky Blue", "Mint Green", "Lavender"],
-                'Chiffon Sarees': ["Turquoise", "Coral", "Peach", "Aqua"],
-                'Net Sarees': ["Silver", "Midnight Black", "Champagne Gold"],
-                'Velvet Sarees': ["Deep Purple", "Wine Red", "Navy Blue"],
-                'Tissue Sarees': ["Glimmering Gold", "Copper", "Rose Gold"],
-                'Kalamkari Sarees': ["Beige", "Earth Brown", "Olive Green"],
-                'Digital Print': ["Multicolor", "Floral Pink", "Abstract Blue"],
-                'Designer Sarees': ["Unique Teal", "Sunset Orange", "Electric Blue"]
-            }
-            
-            all_new_products = []
-            for cat in all_cats:
-                if cat.name in excluded_cats:
-                    continue 
-                
-                prefix = cat_image_map.get(cat.id, 'banarasi')
-                palette = color_palettes.get(cat.name, colors) # Fallback to global colors
-                
-                for i in range(1, 11):
-                    img_name = f"{prefix}_{i}.jpeg"
-                    name = f"{random.choice(prefixes)} {cat.name.replace('Sarees','').strip()} {random.choice(suffixes)} Vol.{i}"
-                    
-                    if i == 1: price = random.randint(799, 999)
-                    elif i <= 3: price = random.randint(1200, 2900)
-                    else: price = random.randint(6500, 25000)
-                    
-                    p = Product(
-                        name=name,
-                        description=f"A breathtaking {cat.name.replace('Sarees','').strip()} masterpiece. Handcrafted with precision.",
-                        price=price,
-                        original_price=price + random.randint(500, 5000),
-                        stock=random.randint(5, 15),
-                        category_id=cat.id,
-                        image=f"../categories/{img_name}",
-                        fabric=cat.name.replace('Sarees','').strip(),
-                        color=random.choice(palette),
-                        occasion="Festive / Puja" if i < 8 else "Party",
-                        is_featured=(i == 1),
-                        is_new_arrival=(i == 2)
-                    )
-                    all_new_products.append(p)
-            
-
-            db.session.bulk_save_objects(all_new_products)
-            db.session.commit()
+        # Products will be added manually by the admin
+        pass
 
 # Initialize Database
 init_db()
